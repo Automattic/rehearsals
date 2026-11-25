@@ -2,7 +2,7 @@
 /**
  * Rehearsal: Saved runs: cleaning what the runner sends, storing it, and finding runs again.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Saved runs: cleaning what the runner sends, storing it, and finding runs again.
  */
-final class Companion_Rehearsal_Runs {
+final class Rehearsal_Runs {
 	// What a run's ref may be: a short label, so it is safe in a URL and a meta query.
 	const REF_PATTERN = '^[A-Za-z0-9._-]{0,64}$';
 
@@ -67,11 +67,11 @@ final class Companion_Rehearsal_Runs {
 	 */
 	public static function clean_page_metrics( array $page ) {
 		$clean = array( 'url' => substr( wp_strip_all_tags( (string) ( $page['url'] ?? '' ) ), 0, 300 ) );
-		foreach ( array_merge( Companion_Rehearsal_Schema::BUDGET_KEYS, array( 'downloaded', 'unmeasured', 'load' ) ) as $k ) {
+		foreach ( array_merge( Rehearsal_Schema::BUDGET_KEYS, array( 'downloaded', 'unmeasured', 'load' ) ) as $k ) {
 			$clean[ $k ] = isset( $page[ $k ] ) && is_numeric( $page[ $k ] ) ? 0 + $page[ $k ] : null;
 		}
-		$clean['warn']   = array_values( array_intersect( (array) ( $page['warn'] ?? array() ), Companion_Rehearsal_Schema::BUDGET_KEYS ) );
-		$clean['limits'] = array_intersect_key( array_map( 'floatval', (array) ( $page['limits'] ?? array() ) ), array_flip( Companion_Rehearsal_Schema::BUDGET_KEYS ) );
+		$clean['warn']   = array_values( array_intersect( (array) ( $page['warn'] ?? array() ), Rehearsal_Schema::BUDGET_KEYS ) );
+		$clean['limits'] = array_intersect_key( array_map( 'floatval', (array) ( $page['limits'] ?? array() ) ), array_flip( Rehearsal_Schema::BUDGET_KEYS ) );
 		return $clean;
 	}
 
@@ -85,7 +85,7 @@ final class Companion_Rehearsal_Runs {
 	 * @return string[]
 	 */
 	public static function lock_runs( $caps, $cap, $user_id, $args ) {
-		if ( 'edit_post' === $cap && ! empty( $args[0] ) && Companion_Rehearsal::RUN === get_post_type( $args[0] ) ) {
+		if ( 'edit_post' === $cap && ! empty( $args[0] ) && Rehearsal::RUN === get_post_type( $args[0] ) ) {
 			return array( 'do_not_allow' );
 		}
 		return $caps;
@@ -100,7 +100,7 @@ final class Companion_Rehearsal_Runs {
 	 */
 	public static function find_runs( array $filters ) {
 		$args   = array(
-			'post_type'      => Companion_Rehearsal::RUN,
+			'post_type'      => Rehearsal::RUN,
 			'post_status'    => 'publish',
 			'posts_per_page' => 25,
 			'paged'          => max( 1, (int) ( $filters['page'] ?? 1 ) ),
@@ -141,7 +141,7 @@ final class Companion_Rehearsal_Runs {
 	public static function run_users() {
 		$users = get_users(
 			array(
-				'has_published_posts' => array( Companion_Rehearsal::RUN ),
+				'has_published_posts' => array( Rehearsal::RUN ),
 				'fields'              => array( 'ID', 'user_login' ),
 			)
 		);
@@ -165,7 +165,7 @@ final class Companion_Rehearsal_Runs {
 	public static function latest( $recipe_id ) {
 		$last = get_posts(
 			array(
-				'post_type'      => Companion_Rehearsal::RUN,
+				'post_type'      => Rehearsal::RUN,
 				'post_status'    => 'publish',
 				'post_parent'    => $recipe_id,
 				'posts_per_page' => 1,
@@ -190,7 +190,7 @@ final class Companion_Rehearsal_Runs {
 			'title'     => get_post( $run->post_parent ) ? get_post( $run->post_parent )->post_title : preg_replace( '/: (pass|fail|queued)$/', '', $run->post_title ) . ' (rehearsal deleted)',
 			'status'    => get_post_meta( $run->ID, '_rehearsal_status', true ),
 			// Recomputed from the steps the run used, so runs saved before IDs ignored key order still match.
-			'hash'      => '' === $recipe ? get_post_meta( $run->ID, '_rehearsal_recipe_hash', true ) : Companion_Rehearsal_Schema::hash( $recipe ),
+			'hash'      => '' === $recipe ? get_post_meta( $run->ID, '_rehearsal_recipe_hash', true ) : Rehearsal_Schema::hash( $recipe ),
 			'build'     => get_post_meta( $run->ID, '_rehearsal_build', true ),
 			'log'       => json_decode( (string) get_post_meta( $run->ID, '_rehearsal_log', true ), true ),
 			'snapshots' => count( (array) json_decode( (string) get_post_meta( $run->ID, '_rehearsal_snapshots', true ), true ) ),
@@ -213,13 +213,13 @@ final class Companion_Rehearsal_Runs {
 	 */
 	public static function create_run( $request ) {
 		$recipe = get_post( $request['recipe_id'] );
-		if ( ! $recipe || Companion_Rehearsal::RECIPE !== $recipe->post_type ) {
+		if ( ! $recipe || Rehearsal::RECIPE !== $recipe->post_type ) {
 			return new WP_Error( 'rehearsal_no_recipe', 'That rehearsal does not exist.', array( 'status' => 404 ) );
 		}
-		if ( ! hash_equals( Companion_Rehearsal_Schema::hash( $recipe->post_content ), (string) $request['recipe_hash'] ) ) {
+		if ( ! hash_equals( Rehearsal_Schema::hash( $recipe->post_content ), (string) $request['recipe_hash'] ) ) {
 			return new WP_Error( 'rehearsal_recipe_changed', 'The rehearsal changed while it was running. Reload and run it again.', array( 'status' => 409 ) );
 		}
-		$missing = Companion_Rehearsal_Requirements::missing_requirements( (array) json_decode( $recipe->post_content, true ) );
+		$missing = Rehearsal_Requirements::missing_requirements( (array) json_decode( $recipe->post_content, true ) );
 		if ( $missing ) {
 			return new WP_Error( 'rehearsal_needs_plugins', 'This rehearsal needs what is not active here: ' . implode( ', ', wp_list_pluck( $missing, 'name' ) ) . '.', array( 'status' => 409 ) );
 		}
@@ -236,16 +236,16 @@ final class Companion_Rehearsal_Runs {
 
 		$run_id = wp_insert_post(
 			array(
-				'post_type'   => Companion_Rehearsal::RUN,
+				'post_type'   => Rehearsal::RUN,
 				'post_status' => 'publish',
 				'post_parent' => $recipe->ID,
 				'post_author' => get_current_user_id(),
 				'post_title'  => sprintf( '%s: %s', $recipe->post_title, $request['status'] ),
 				'meta_input'  => array(
 					'_rehearsal_status'      => $request['status'],
-					'_rehearsal_recipe_hash' => Companion_Rehearsal_Schema::hash( $recipe->post_content ),
+					'_rehearsal_recipe_hash' => Rehearsal_Schema::hash( $recipe->post_content ),
 					'_rehearsal_recipe'      => wp_slash( $recipe->post_content ),
-					'_rehearsal_build'       => Companion_Rehearsal_Admin::build(),
+					'_rehearsal_build'       => Rehearsal_Admin::build(),
 					'_rehearsal_log'         => wp_slash( wp_json_encode( $log ) ),
 					'_rehearsal_snapshots'   => wp_slash( wp_json_encode( $snapshots ) ),
 					'_rehearsal_errors'      => wp_slash( wp_json_encode( $errors ) ),

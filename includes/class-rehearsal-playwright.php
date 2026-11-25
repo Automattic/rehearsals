@@ -2,7 +2,7 @@
 /**
  * Rehearsal: Translates rehearsals into standalone Playwright tests.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Translates rehearsals into standalone Playwright tests.
  */
-final class Companion_Rehearsal_Playwright {
+final class Rehearsal_Playwright {
 	/**
 	 * A JS/TS string expression; {{run}} becomes the test's `run` constant.
 	 *
@@ -308,7 +308,7 @@ final class Companion_Rehearsal_Playwright {
 		return array_merge(
 			array(
 				'// Rehearsal: ' . $title,
-				'// Rehearsal ' . substr( $payload['id'], 0, 7 ) . ' from ' . self::one_line( $payload['site'] ) . ', format ' . Companion_Rehearsal_Schema::format_of( $def ) . '.',
+				'// Rehearsal ' . substr( $payload['id'], 0, 7 ) . ' from ' . self::one_line( $payload['site'] ) . ', format ' . Rehearsal_Schema::format_of( $def ) . '.',
 				'// Requires plugins: ' . ( empty( $def['requires'] ) ? 'none' : implode( ', ', $def['requires'] ) ) . '. Requires theme: ' . ( empty( $def['theme'] ) ? 'any' : implode( ' or ', (array) $def['theme'] ) ) . '. Runs as: ' . ( empty( $def['role'] ) ? 'the logged-in user' : $def['role'] . ' (' . self::storage_env( $def['role'] ) . ')' ) . '.',
 				'test.describe( ' . self::json( $title ) . ', () => {',
 				"\tconst expect = baseExpect.configure( { timeout: $timeout } );",
@@ -342,11 +342,11 @@ final class Companion_Rehearsal_Playwright {
 	 * @return string
 	 */
 	private static function label( array $step ) {
-		$action = (string) current( array_intersect( Companion_Rehearsal_Schema::STEPS, array_keys( $step ) ) );
+		$action = (string) current( array_intersect( Rehearsal_Schema::STEPS, array_keys( $step ) ) );
 		$target = $step[ $action ];
 		$label  = is_string( $target ) ? "$action $target" : $action;
 		if ( 'expect' === $action ) {
-			$matcher = (string) current( array_intersect( Companion_Rehearsal_Schema::MATCHERS, array_keys( $step ) ) );
+			$matcher = (string) current( array_intersect( Rehearsal_Schema::MATCHERS, array_keys( $step ) ) );
 			$label  .= ( empty( $step['not'] ) ? '' : ' not' ) . " $matcher" . ( is_bool( $step[ $matcher ] ) ? '' : ' ' . self::json( $step[ $matcher ] ) );
 		}
 		if ( isset( $step['value'] ) ) {
@@ -383,7 +383,7 @@ final class Companion_Rehearsal_Playwright {
 			return 'await expect.poll( () => ' . self::pw_locator( $step['expectCount'], false ) . ".count()$t2 ).toBeGreaterThanOrEqual( " . (int) ( $step['min'] ?? 1 ) . ' );';
 		}
 		if ( isset( $step['expect'] ) ) {
-			$matcher = current( array_intersect( Companion_Rehearsal_Schema::MATCHERS, array_keys( $step ) ) );
+			$matcher = current( array_intersect( Rehearsal_Schema::MATCHERS, array_keys( $step ) ) );
 			$not     = empty( $step['not'] ) ? '' : '.not';
 			$arg     = is_bool( $step[ $matcher ] ) ? '' : ( is_int( $step[ $matcher ] ) ? (string) $step[ $matcher ] : self::pw_str( $step[ $matcher ] ) );
 			if ( 'toBeVisible' === $matcher && $not ) {

@@ -2,7 +2,7 @@
 /**
  * Loads Rehearsal's classes with stand-ins for the few WordPress functions their pure parts call.
  *
- * @package companion
+ * @package rehearsals
  */
 
 define( 'ABSPATH', __DIR__ . '/' );
@@ -69,4 +69,4 @@ function user_can( $user_id, $cap ) {
 	return $user && 'manage_options' === $cap && in_array( 'administrator', $user->roles, true );
 }
 
-require dirname( __DIR__ ) . '/class-companion-rehearsal.php';
+require dirname( __DIR__ ) . '/class-rehearsal.php';

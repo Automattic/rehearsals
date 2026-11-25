@@ -1,8 +1,8 @@
 <?php
 /**
- * Tests for Companion_Rehearsal_Schema.
+ * Tests for Rehearsal_Schema.
  *
- * @package companion
+ * @package rehearsals
  */
 
 use PHPUnit\Framework\TestCase;
@@ -19,7 +19,7 @@ class SchemaTest extends TestCase {
 	 * @param string $expected  Part of the error message.
 	 */
 	public function test_rejects_invalid_rehearsals( $rehearsal, $expected ) {
-		$this->assertStringContainsString( $expected, Companion_Rehearsal_Schema::validate( $rehearsal ) );
+		$this->assertStringContainsString( $expected, Rehearsal_Schema::validate( $rehearsal ) );
 	}
 
 	public function invalid_rehearsals() {
@@ -85,21 +85,21 @@ class SchemaTest extends TestCase {
 				array( 'dialog' => 'dismiss' ),
 			),
 		);
-		$this->assertSame( '', Companion_Rehearsal_Schema::validate( $rehearsal ) );
+		$this->assertSame( '', Rehearsal_Schema::validate( $rehearsal ) );
 	}
 
 	public function test_the_id_ignores_formatting_but_not_steps() {
 		$pretty  = json_decode( "{\n  \"steps\": [ { \"goto\": \"/\" } ]\n}", true );
 		$compact = json_decode( '{"steps":[{"goto":"/"}]}', true );
 		$changed = json_decode( '{"steps":[{"goto":"/wp-admin/"}]}', true );
-		$id      = static fn( $r ) => Companion_Rehearsal_Schema::hash( Companion_Rehearsal_Schema::canonical( $r ) );
+		$id      = static fn( $r ) => Rehearsal_Schema::hash( Rehearsal_Schema::canonical( $r ) );
 
 		$this->assertSame( $id( $pretty ), $id( $compact ) );
 		$this->assertNotSame( $id( $compact ), $id( $changed ) );
 	}
 
 	public function test_the_id_ignores_key_order_but_not_step_order() {
-		$id = static fn( $json ) => Companion_Rehearsal_Schema::hash( Companion_Rehearsal_Schema::canonical( json_decode( $json, true ) ) );
+		$id = static fn( $json ) => Rehearsal_Schema::hash( Rehearsal_Schema::canonical( json_decode( $json, true ) ) );
 
 		$this->assertSame(
 			$id( '{"requires":["jetpack"],"steps":[{"fill":"#a","value":"x"},{"expect":"h1","toHaveText":"Hi"}]}' ),
@@ -112,7 +112,7 @@ class SchemaTest extends TestCase {
 	}
 
 	public function test_the_id_ignores_the_format() {
-		$id = static fn( $r ) => Companion_Rehearsal_Schema::hash( Companion_Rehearsal_Schema::canonical( $r ) );
+		$id = static fn( $r ) => Rehearsal_Schema::hash( Rehearsal_Schema::canonical( $r ) );
 		$this->assertSame( $id( array( 'steps' => array( array( 'goto' => '/' ) ) ) ), $id( array( 'format' => 1, 'steps' => array( array( 'goto' => '/' ) ) ) ) );
 	}
 
@@ -123,14 +123,14 @@ class SchemaTest extends TestCase {
 	 * @param bool  $newer     Whether it was written for a newer Rehearsal.
 	 */
 	public function test_knows_when_a_rehearsal_is_from_a_newer_version( $rehearsal, $newer ) {
-		$this->assertSame( $newer, Companion_Rehearsal_Schema::is_newer( $rehearsal ) );
+		$this->assertSame( $newer, Rehearsal_Schema::is_newer( $rehearsal ) );
 	}
 
 	public function formats() {
 		return array(
 			'no format (older rehearsal)' => array( array(), false ),
-			'this version'                => array( array( 'format' => Companion_Rehearsal::FORMAT ), false ),
-			'a newer version'             => array( array( 'format' => Companion_Rehearsal::FORMAT + 1 ), true ),
+			'this version'                => array( array( 'format' => Rehearsal::FORMAT ), false ),
+			'a newer version'             => array( array( 'format' => Rehearsal::FORMAT + 1 ), true ),
 		);
 	}
 
@@ -141,7 +141,7 @@ class SchemaTest extends TestCase {
 	 * @param int   $expected  Format it is stored with.
 	 */
 	public function test_a_saved_rehearsal_keeps_or_gets_a_format( $rehearsal, $expected ) {
-		$this->assertSame( $expected, Companion_Rehearsal_Schema::with_format( $rehearsal )['format'] );
+		$this->assertSame( $expected, Rehearsal_Schema::with_format( $rehearsal )['format'] );
 	}
 
 	public function stamps() {
@@ -150,22 +150,22 @@ class SchemaTest extends TestCase {
 			'none, with a dialog step'      => array( array( 'steps' => array( array( 'dialog' => 'accept' ) ) ), 2 ),
 			'none, with either-or requires' => array( array( 'requires' => array( 'a or b' ), 'steps' => array() ), 2 ),
 			'none, pinned to a viewport'    => array( array( 'viewport' => 'desktop', 'steps' => array() ), 2 ),
-			'this version\'s'        => array( array( 'format' => Companion_Rehearsal::FORMAT ), Companion_Rehearsal::FORMAT ),
-			'a newer one stays newer' => array( array( 'format' => Companion_Rehearsal::FORMAT + 1 ), Companion_Rehearsal::FORMAT + 1 ),
+			'this version\'s'        => array( array( 'format' => Rehearsal::FORMAT ), Rehearsal::FORMAT ),
+			'a newer one stays newer' => array( array( 'format' => Rehearsal::FORMAT + 1 ), Rehearsal::FORMAT + 1 ),
 		);
 	}
 
 	public function test_install_error_says_to_update_for_a_newer_rehearsal() {
-		$newer = Companion_Rehearsal_Schema::install_error( array( 'format' => Companion_Rehearsal::FORMAT + 1 ), 'Step 2 must have exactly one of: goto.' );
-		$same  = Companion_Rehearsal_Schema::install_error( array( 'format' => Companion_Rehearsal::FORMAT ), 'Step 2 must have exactly one of: goto.' );
+		$newer = Rehearsal_Schema::install_error( array( 'format' => Rehearsal::FORMAT + 1 ), 'Step 2 must have exactly one of: goto.' );
+		$same  = Rehearsal_Schema::install_error( array( 'format' => Rehearsal::FORMAT ), 'Step 2 must have exactly one of: goto.' );
 
-		$this->assertStringContainsString( 'Update the Companion plugin', $newer );
+		$this->assertStringContainsString( 'Update the Rehearsal plugin', $newer );
 		$this->assertStringContainsString( 'Step 2 must have exactly one of', $newer );
-		$this->assertStringNotContainsString( 'Update the Companion plugin', $same );
+		$this->assertStringNotContainsString( 'Update the Rehearsal plugin', $same );
 	}
 
 	public function test_canonical_json_keeps_slashes_and_unicode_readable() {
-		$json = Companion_Rehearsal_Schema::canonical( array( 'steps' => array( array( 'goto' => '/a?p=%2Fforms', 'expectText' => 'Thank you “Ada”' ) ) ) );
+		$json = Rehearsal_Schema::canonical( array( 'steps' => array( array( 'goto' => '/a?p=%2Fforms', 'expectText' => 'Thank you “Ada”' ) ) ) );
 		$this->assertStringContainsString( '/a?p=%2Fforms', $json );
 		$this->assertStringContainsString( '“Ada”', $json );
 	}

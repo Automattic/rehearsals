@@ -9,6 +9,19 @@ check the same way, and compare results by a rehearsal ID that only changes when
 
 ![The Rehearsal screen after a run: rehearsals on the left, the test frame on the right](screenshots/overview.png)
 
+## Install
+
+Copy or clone this repository into `wp-content/plugins/rehearsals` and activate **Rehearsal**, or
+with WP-CLI:
+
+```bash
+wp plugin install https://github.com/Automattic/rehearsals/archive/refs/heads/trunk.zip --activate
+```
+
+Jurassic Ninja sites also get a copy of Rehearsal with the Companion plugin. When that copy is loaded,
+this plugin steps aside and says so on the Plugins screen, so the two never run at once. Rehearsals
+and runs are stored the same way by both, so nothing is lost when switching.
+
 ## Quick start
 
 1. Open **Tools → Rehearsal** on a Jurassic Ninja site.
@@ -120,12 +133,12 @@ the form, page or response it just created.
 ### Versions
 
 Every rehearsal records the oldest format that can run it (`"format": 1`), so a rehearsal that uses
-nothing new still runs on older sites without a warning. A Companion release raises
-`Companion_Rehearsal::FORMAT` when it adds something older versions can't run: a new step, matcher or
+nothing new still runs on older sites without a warning. A Rehearsal release raises
+`Rehearsal::FORMAT` when it adds something older versions can't run: a new step, matcher or
 setting. Format 2 added the `dialog` step, either-or `requires` and `viewport`. A site whose Rehearsal
 is older than a rehearsal's format still runs it, but warns in the list ("Newer format"), in the
 dialog, before installing, and as the first line of the run log. When
-an older version can't even read it, installing explains that the Companion plugin needs updating.
+an older version can't even read it, installing explains that the Rehearsal plugin needs updating.
 The rehearsal ID ignores the format, so stamping it never makes results stale, and the order of keys,
 so `{ "fill", "value" }` and `{ "value", "fill" }` are the same rehearsal. Runs saved before IDs
 ignored key order are matched by the steps they stored, so they don't turn stale either.
@@ -259,21 +272,21 @@ The screen says what ran, and links each saved run to its result:
 
 ## Development
 
-`class-companion-rehearsal.php` holds the shared names and hooks; each part lives in `includes/`:
+`class-rehearsal.php` holds the shared names and hooks; each part lives in `includes/`:
 
 | Class | Does |
 | --- | --- |
-| `Companion_Rehearsal_Schema` | The step vocabulary, validation, and the rehearsal ID |
-| `Companion_Rehearsal_Store` | Rehearsal posts: registering, saving, shaping them for the runner |
-| `Companion_Rehearsal_Runs` | Saved runs: cleaning what the runner sends, storing, searching |
-| `Companion_Rehearsal_Requirements` | Plugins, theme and role a rehearsal needs |
-| `Companion_Rehearsal_Roles` | Running as a role's test user |
-| `Companion_Rehearsal_Share` | Share, bundle and run links, the share page, and its JSON, GitHub and Playwright output |
-| `Companion_Rehearsal_Playwright` | Rehearsal → Playwright test |
-| `Companion_Rehearsal_Rest` | REST routes |
-| `Companion_Rehearsal_Admin` | The screen, its assets, the in-frame recorder, the build line |
-| `Companion_Rehearsal_Examples` | The example rehearsals |
-| `Companion_Rehearsal_Command` | `wp rehearsal` |
+| `Rehearsal_Schema` | The step vocabulary, validation, and the rehearsal ID |
+| `Rehearsal_Store` | Rehearsal posts: registering, saving, shaping them for the runner |
+| `Rehearsal_Runs` | Saved runs: cleaning what the runner sends, storing, searching |
+| `Rehearsal_Requirements` | Plugins, theme and role a rehearsal needs |
+| `Rehearsal_Roles` | Running as a role's test user |
+| `Rehearsal_Share` | Share, bundle and run links, the share page, and its JSON, GitHub and Playwright output |
+| `Rehearsal_Playwright` | Rehearsal → Playwright test |
+| `Rehearsal_Rest` | REST routes |
+| `Rehearsal_Admin` | The screen, its assets, the in-frame recorder, the build line |
+| `Rehearsal_Examples` | The example rehearsals |
+| `Rehearsal_Command` | `wp rehearsal` |
 
 The decisions worth testing are pure functions that take what they need as arguments, such as
 `Schema::validate()`, `Requirements::find_missing()`, `Roles::is_from_frame()`,

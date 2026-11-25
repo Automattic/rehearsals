@@ -2,7 +2,7 @@
 /**
  * Rehearsal: Rehearsal posts: registering, saving, and shaping them for the runner.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Rehearsal posts: registering, saving, and shaping them for the runner.
  */
-final class Companion_Rehearsal_Store {
+final class Rehearsal_Store {
 	/**
 	 * Both post types are admin-only: a recipe acts as whoever runs it.
 	 */
@@ -22,7 +22,7 @@ final class Companion_Rehearsal_Store {
 
 		// Recipes are edited in the Rehearsal dialog, so the post type has no screens of its own.
 		register_post_type(
-			Companion_Rehearsal::RECIPE,
+			Rehearsal::RECIPE,
 			array(
 				'label'        => 'Rehearsals',
 				'public'       => false,
@@ -33,7 +33,7 @@ final class Companion_Rehearsal_Store {
 		);
 
 		register_post_type(
-			Companion_Rehearsal::RUN,
+			Rehearsal::RUN,
 			array(
 				'label'        => 'Rehearsal runs',
 				'public'       => false,
@@ -52,7 +52,7 @@ final class Companion_Rehearsal_Store {
 	public static function recipes_for_js() {
 		$posts = get_posts(
 			array(
-				'post_type'      => Companion_Rehearsal::RECIPE,
+				'post_type'      => Rehearsal::RECIPE,
 				'post_status'    => 'publish',
 				'posts_per_page' => 100,
 				'orderby'        => 'title',
@@ -70,22 +70,22 @@ final class Companion_Rehearsal_Store {
 	 */
 	public static function recipe_for_js( $post ) {
 		$recipe = json_decode( $post->post_content, true );
-		if ( Companion_Rehearsal_Schema::validate( $recipe ) ) {
+		if ( Rehearsal_Schema::validate( $recipe ) ) {
 			return null;
 		}
 		return array(
 			'id'       => $post->ID,
 			// The raw title: get_the_title() texturizes it into HTML entities, and every place that shows it escapes it.
 			'title'    => $post->post_title,
-			'hash'     => Companion_Rehearsal_Schema::hash( $post->post_content ),
+			'hash'     => Rehearsal_Schema::hash( $post->post_content ),
 			'recipe'   => $recipe,
-			'shareUrl' => Companion_Rehearsal_Share::share_url( $post->ID ),
+			'shareUrl' => Rehearsal_Share::share_url( $post->ID ),
 			'source'   => (string) get_post_meta( $post->ID, '_rehearsal_source', true ),
-			'missing'  => Companion_Rehearsal_Requirements::missing_requirements( $recipe ),
-			'format'   => Companion_Rehearsal_Schema::format_of( $recipe ),
-			'newer'    => Companion_Rehearsal_Schema::is_newer( $recipe ),
-			'runUrl'   => Companion_Rehearsal_Share::run_url( array( $post->ID ) ),
-			'lastRun'  => Companion_Rehearsal_Runs::latest( $post->ID ),
+			'missing'  => Rehearsal_Requirements::missing_requirements( $recipe ),
+			'format'   => Rehearsal_Schema::format_of( $recipe ),
+			'newer'    => Rehearsal_Schema::is_newer( $recipe ),
+			'runUrl'   => Rehearsal_Share::run_url( array( $post->ID ) ),
+			'lastRun'  => Rehearsal_Runs::latest( $post->ID ),
 		);
 	}
 
@@ -97,17 +97,17 @@ final class Companion_Rehearsal_Store {
 	 * @return int Its ID, or 0.
 	 */
 	public static function find_same( $title, array $recipe ) {
-		$hash = Companion_Rehearsal_Schema::hash( Companion_Rehearsal_Schema::canonical( $recipe ) );
+		$hash = Rehearsal_Schema::hash( Rehearsal_Schema::canonical( $recipe ) );
 		$same = get_posts(
 			array(
-				'post_type'      => Companion_Rehearsal::RECIPE,
+				'post_type'      => Rehearsal::RECIPE,
 				'post_status'    => 'publish',
 				'title'          => $title,
 				'posts_per_page' => 20,
 			)
 		);
 		foreach ( $same as $post ) {
-			if ( Companion_Rehearsal_Schema::hash( $post->post_content ) === $hash ) {
+			if ( Rehearsal_Schema::hash( $post->post_content ) === $hash ) {
 				return $post->ID;
 			}
 		}
@@ -125,9 +125,9 @@ final class Companion_Rehearsal_Store {
 	 */
 	public static function save_recipe( $id, $title, array $recipe, $source = '' ) {
 		global $wpdb;
-		$recipe = Companion_Rehearsal_Schema::with_format( $recipe );
+		$recipe = Rehearsal_Schema::with_format( $recipe );
 		$post = array(
-			'post_type'   => Companion_Rehearsal::RECIPE,
+			'post_type'   => Rehearsal::RECIPE,
 			'post_status' => 'publish',
 			'post_title'  => $title,
 		);
@@ -135,7 +135,7 @@ final class Companion_Rehearsal_Store {
 		if ( is_wp_error( $id ) ) {
 			return $id;
 		}
-		$wpdb->update( $wpdb->posts, array( 'post_content' => Companion_Rehearsal_Schema::canonical( $recipe ) ), array( 'ID' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->update( $wpdb->posts, array( 'post_content' => Rehearsal_Schema::canonical( $recipe ) ), array( 'ID' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		clean_post_cache( $id );
 		if ( $source ) {
 			update_post_meta( $id, '_rehearsal_source', $source );

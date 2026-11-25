@@ -1,8 +1,8 @@
 <?php
 /**
- * Tests for Companion_Rehearsal_Roles.
+ * Tests for Rehearsal_Roles.
  *
- * @package companion
+ * @package rehearsals
  */
 
 use PHPUnit\Framework\TestCase;
@@ -22,13 +22,13 @@ class RolesTest extends TestCase {
 		$GLOBALS['rh_users'] = array(
 			$user( 1, 'admin', array( 'administrator' ) ),
 			$user( 2, 'author', array( 'author' ) ),
-			$user( 3, 'rehearsal-editor', array( 'editor' ), array( Companion_Rehearsal_Roles::MARK => 1 ) ),
+			$user( 3, 'rehearsal-editor', array( 'editor' ), array( Rehearsal_Roles::MARK => 1 ) ),
 			$user( 4, 'rehearsal-author', array( 'author' ) ),
-			$user( 5, 'rehearsal-contributor', array( 'subscriber' ), array( Companion_Rehearsal_Roles::MARK => 1 ) ),
+			$user( 5, 'rehearsal-contributor', array( 'subscriber' ), array( Rehearsal_Roles::MARK => 1 ) ),
 		);
 		$_COOKIE = array( 'rehearsal_role' => 'editor' );
 		$_SERVER = array( 'HTTP_SEC_FETCH_DEST' => 'iframe' );
-		$acting = new ReflectionProperty( Companion_Rehearsal_Roles::class, 'acting_as' );
+		$acting = new ReflectionProperty( Rehearsal_Roles::class, 'acting_as' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$acting->setAccessible( true );
 		}
@@ -43,7 +43,7 @@ class RolesTest extends TestCase {
 	 * @param bool   $expected Whether the request counts as coming from the frame.
 	 */
 	public function test_which_requests_switch( $dest, $marker, $expected ) {
-		$this->assertSame( $expected, Companion_Rehearsal_Roles::is_from_frame( $dest, $marker ) );
+		$this->assertSame( $expected, Rehearsal_Roles::is_from_frame( $dest, $marker ) );
 	}
 
 	public function requests() {
@@ -68,8 +68,8 @@ class RolesTest extends TestCase {
 	public function test_who_a_request_runs_as( $cookie, $server, $user_id, $expected ) {
 		$_COOKIE = $cookie;
 		$_SERVER = $server;
-		$this->assertSame( $expected, Companion_Rehearsal_Roles::act_as_role( $user_id ) );
-		$this->assertSame( $expected !== $user_id, Companion_Rehearsal_Roles::is_acting() );
+		$this->assertSame( $expected, Rehearsal_Roles::act_as_role( $user_id ) );
+		$this->assertSame( $expected !== $user_id, Rehearsal_Roles::is_acting() );
 	}
 
 	public function switches() {

@@ -2,7 +2,7 @@
 /**
  * Rehearsal: The example rehearsals, and adding them to a site.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The example rehearsals, and adding them to a site.
  */
-final class Companion_Rehearsal_Examples {
+final class Rehearsal_Examples {
 	/**
 	 * Rehearsal checking its own screen: the dialogs reject bad input, and the run filters respond.
 	 * It saves nothing, so it can run any number of times.
@@ -22,7 +22,7 @@ final class Companion_Rehearsal_Examples {
 		$save  = array( 'click' => '#rh-modal [data-save]' );
 		return array(
 			'steps' => array(
-				array( 'goto' => '/wp-admin/tools.php?page=' . Companion_Rehearsal::SLUG ),
+				array( 'goto' => '/wp-admin/tools.php?page=' . Rehearsal::SLUG ),
 				array(
 					'expect'      => '#rh-run',
 					'toBeVisible' => true,
@@ -212,9 +212,9 @@ final class Companion_Rehearsal_Examples {
 			wp_die( 'You are not allowed to add rehearsals.' );
 		}
 		foreach ( self::all( defined( 'JETPACK__VERSION' ), post_type_exists( 'jetpack_form' ) ) as $title => $recipe ) {
-			Companion_Rehearsal_Store::save_recipe( 0, $title, $recipe );
+			Rehearsal_Store::save_recipe( 0, $title, $recipe );
 		}
-		wp_safe_redirect( admin_url( 'tools.php?page=' . Companion_Rehearsal::SLUG ) );
+		wp_safe_redirect( admin_url( 'tools.php?page=' . Rehearsal::SLUG ) );
 		exit;
 	}
 

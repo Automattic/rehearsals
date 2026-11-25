@@ -2,7 +2,7 @@
 /**
  * Rehearsal: Runs a rehearsal as a test user with a given role.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Runs a rehearsal as a test user with a given role.
  */
-final class Companion_Rehearsal_Roles {
+final class Rehearsal_Roles {
 	/**
 	 * The role the current request is acting as, when act_as_role() switched it.
 	 *

@@ -2,7 +2,7 @@
 /**
  * Rehearsal: Validates rehearsals and gives them a stable ID.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Validates rehearsals and gives them a stable ID.
  */
-final class Companion_Rehearsal_Schema {
+final class Rehearsal_Schema {
 	const STEPS   = array( 'goto', 'waitFor', 'expect', 'expectText', 'expectCount', 'fill', 'click', 'check', 'uncheck', 'selectOption', 'hover', 'press', 'expectNoConsoleErrors', 'snapshot', 'screenshot', 'dialog' );
 	// Named after Playwright's expect(locator) matchers, so recipes carry over to a Playwright runner.
 	const MATCHERS = array( 'toBeVisible', 'toHaveText', 'toContainText', 'toHaveCount', 'toBeEnabled', 'toBeDisabled', 'toBeChecked', 'toHaveValue' );
@@ -300,7 +300,7 @@ final class Companion_Rehearsal_Schema {
 	 * @return bool
 	 */
 	public static function is_newer( array $recipe ) {
-		return self::format_of( $recipe ) > Companion_Rehearsal::FORMAT;
+		return self::format_of( $recipe ) > Rehearsal::FORMAT;
 	}
 
 	/**
@@ -313,9 +313,9 @@ final class Companion_Rehearsal_Schema {
 	public static function install_error( array $recipe, $error ) {
 		if ( self::is_newer( $recipe ) ) {
 			return sprintf(
-				'This rehearsal was made with a newer version of Rehearsal (format %d; this site understands format %d) and uses something this version does not know: %s Update the Companion plugin on this site to run it.',
+				'This rehearsal was made with a newer version of Rehearsal (format %d; this site understands format %d) and uses something this version does not know: %s Update the Rehearsal plugin on this site to run it.',
 				self::format_of( $recipe ),
-				Companion_Rehearsal::FORMAT,
+				Rehearsal::FORMAT,
 				$error
 			);
 		}

@@ -2,7 +2,7 @@
 /**
  * Rehearsal: The Tools → Rehearsal screen, its assets, and what every frame page needs.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The Tools → Rehearsal screen, its assets, and what every frame page needs.
  */
-final class Companion_Rehearsal_Admin {
+final class Rehearsal_Admin {
 	/**
 	 * Editor pages send Document-Isolation-Policy, which stops the runner reading its frame; turn it off for that frame only.
 	 *
@@ -29,7 +29,7 @@ final class Companion_Rehearsal_Admin {
 	 * Tools → Rehearsal.
 	 */
 	public static function menu() {
-		add_management_page( 'Rehearsal', 'Rehearsal', 'manage_options', Companion_Rehearsal::SLUG, array( __CLASS__, 'render' ) );
+		add_management_page( 'Rehearsal', 'Rehearsal', 'manage_options', Rehearsal::SLUG, array( __CLASS__, 'render' ) );
 	}
 
 	/**
@@ -38,10 +38,10 @@ final class Companion_Rehearsal_Admin {
 	 * @param string $hook Admin page hook.
 	 */
 	public static function enqueue( $hook ) {
-		if ( 'tools_page_' . Companion_Rehearsal::SLUG !== $hook ) {
+		if ( 'tools_page_' . Rehearsal::SLUG !== $hook ) {
 			return;
 		}
-		$url = Companion_Rehearsal::url( 'assets/' );
+		$url = Rehearsal::url( 'assets/' );
 		wp_enqueue_style( 'rehearsal', $url . 'runner.css', array(), self::asset_version( 'runner.css' ) );
 		wp_enqueue_script( 'rehearsal', $url . 'runner.js', array( 'wp-api-fetch' ), self::asset_version( 'runner.js' ), true );
 		wp_add_inline_script(
@@ -51,13 +51,13 @@ final class Companion_Rehearsal_Admin {
 					'adminUrl' => admin_url( '/' ),
 					'homeUrl'  => home_url( '/' ),
 					'build'    => self::build(),
-					'recipes'  => Companion_Rehearsal_Store::recipes_for_js(),
-					'runs'     => Companion_Rehearsal_Runs::find_runs( array() ),
-					'runUsers' => Companion_Rehearsal_Runs::run_users(),
-					'steps'    => Companion_Rehearsal_Schema::STEPS,
-					'matchers' => Companion_Rehearsal_Schema::MATCHERS,
-					'format'   => Companion_Rehearsal::FORMAT,
-					'budgetKeys' => Companion_Rehearsal_Schema::BUDGET_KEYS,
+					'recipes'  => Rehearsal_Store::recipes_for_js(),
+					'runs'     => Rehearsal_Runs::find_runs( array() ),
+					'runUsers' => Rehearsal_Runs::run_users(),
+					'steps'    => Rehearsal_Schema::STEPS,
+					'matchers' => Rehearsal_Schema::MATCHERS,
+					'format'   => Rehearsal::FORMAT,
+					'budgetKeys' => Rehearsal_Schema::BUDGET_KEYS,
 					// A colleague's install link lands here as ?install=<share URL>; the modal confirms before anything is saved.
 					'install'  => isset( $_GET['install'] ) ? esc_url_raw( wp_unslash( $_GET['install'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					'autorun'  => self::autorun(),
@@ -75,8 +75,8 @@ final class Companion_Rehearsal_Admin {
 	 * @return string
 	 */
 	private static function asset_version( $file ) {
-		$changed = @filemtime( Companion_Rehearsal::path( 'assets/' . $file ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		return Companion_Rehearsal::VERSION . ( $changed ? '.' . $changed : '' );
+		$changed = @filemtime( Rehearsal::path( 'assets/' . $file ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return Rehearsal::VERSION . ( $changed ? '.' . $changed : '' );
 	}
 
 	/**
@@ -89,12 +89,12 @@ final class Companion_Rehearsal_Admin {
 		if ( empty( $_GET['run'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return null;
 		}
-		$ids = Companion_Rehearsal_Share::ids_from_run_token( sanitize_text_field( wp_unslash( $_GET['run'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$ids = Rehearsal_Share::ids_from_run_token( sanitize_text_field( wp_unslash( $_GET['run'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$ref = isset( $_GET['ref'] ) ? sanitize_text_field( wp_unslash( $_GET['ref'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $ids ) {
 			return array( 'error' => 'This run link is not valid. Copy it again from wp rehearsal list or the rehearsal\'s dialog.' );
 		}
-		if ( ! preg_match( '/' . Companion_Rehearsal_Runs::REF_PATTERN . '/', $ref ) ) {
+		if ( ! preg_match( '/' . Rehearsal_Runs::REF_PATTERN . '/', $ref ) ) {
 			return array( 'error' => 'The run link\'s ref can only have letters, numbers, ".", "_" and "-", up to 64 of them.' );
 		}
 		return array(
@@ -107,10 +107,10 @@ final class Companion_Rehearsal_Admin {
 	 * Inline, so it exists before any other script on the page runs. Inert outside the runner's frame.
 	 */
 	public static function print_recorder() {
-		if ( ! Companion_Rehearsal_Roles::is_acting() && ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) ) {
+		if ( ! Rehearsal_Roles::is_acting() && ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) ) {
 			return;
 		}
-		$js = file_get_contents( Companion_Rehearsal::path( 'assets/recorder.js' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$js = file_get_contents( Rehearsal::path( 'assets/recorder.js' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( $js ) {
 			wp_print_inline_script_tag( $js );
 		}
@@ -122,7 +122,7 @@ final class Companion_Rehearsal_Admin {
 	public static function render() {
 		$has_recipes = (bool) get_posts(
 			array(
-				'post_type'      => Companion_Rehearsal::RECIPE,
+				'post_type'      => Rehearsal::RECIPE,
 				'post_status'    => 'publish',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',

@@ -1,8 +1,8 @@
 <?php
 /**
- * Tests for Companion_Rehearsal_Runs.
+ * Tests for Rehearsal_Runs.
  *
- * @package companion
+ * @package rehearsals
  */
 
 use PHPUnit\Framework\TestCase;
@@ -14,13 +14,13 @@ class RunsTest extends TestCase {
 
 	public function test_log_keeps_messages_verbatim() {
 		$msg = 'Step 2: timed out on a[href="/wp-admin/admin.php?p=%2Fforms"] · page showed: <b>Saved</b>';
-		$log = Companion_Rehearsal_Runs::clean_log( array( array( 'ok' => true, 'msg' => $msg, 'ms' => 12 ) ) );
+		$log = Rehearsal_Runs::clean_log( array( array( 'ok' => true, 'msg' => $msg, 'ms' => 12 ) ) );
 		$this->assertSame( $msg, $log[0]['msg'] );
 	}
 
 	public function test_log_limits_sizes() {
 		$entries = array_fill( 0, 250, array( 'ok' => 1, 'msg' => str_repeat( 'a', 2000 ), 'ms' => -5 ) );
-		$log     = Companion_Rehearsal_Runs::clean_log( $entries );
+		$log     = Rehearsal_Runs::clean_log( $entries );
 
 		$this->assertCount( 200, $log );
 		$this->assertSame( 1000, strlen( $log[0]['msg'] ) );
@@ -29,7 +29,7 @@ class RunsTest extends TestCase {
 	}
 
 	public function test_page_metrics_keep_only_known_numbers() {
-		$log  = Companion_Rehearsal_Runs::clean_log(
+		$log  = Rehearsal_Runs::clean_log(
 			array(
 				array(
 					'ok'    => true,
@@ -51,7 +51,7 @@ class RunsTest extends TestCase {
 	}
 
 	public function test_errors_stay_verbatim_for_bug_reports() {
-		$errors = Companion_Rehearsal_Runs::clean_errors( array( array( 'msg' => 'Store "x" <already> registered', 'page' => '/a', 'source' => 'at f (x.js:1:2)', 'count' => 0 ) ) );
+		$errors = Rehearsal_Runs::clean_errors( array( array( 'msg' => 'Store "x" <already> registered', 'page' => '/a', 'source' => 'at f (x.js:1:2)', 'count' => 0 ) ) );
 
 		$this->assertSame( 'Store "x" <already> registered', $errors[0]['msg'] );
 		$this->assertSame( 1, $errors[0]['count'] );

@@ -2,7 +2,7 @@
 /**
  * Rehearsal: REST routes for saving, deleting and installing rehearsals.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST routes for saving, deleting and installing rehearsals.
  */
-final class Companion_Rehearsal_Rest {
+final class Rehearsal_Rest {
 	/**
 	 * Runs, recipe saving from the modal, and installing from a share link.
 	 */
@@ -61,7 +61,7 @@ final class Companion_Rehearsal_Rest {
 			array(
 				'methods'             => 'POST',
 				'callback'            => static function ( $request ) {
-					return rest_ensure_response( array( 'url' => Companion_Rehearsal_Share::bundle_url( $request['ids'] ) ) );
+					return rest_ensure_response( array( 'url' => Rehearsal_Share::bundle_url( $request['ids'] ) ) );
 				},
 				'permission_callback' => $admin,
 				'args'                => array(
@@ -79,7 +79,7 @@ final class Companion_Rehearsal_Rest {
 			'/role-user',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( Companion_Rehearsal_Roles::class, 'rest_role_user' ),
+				'callback'            => array( Rehearsal_Roles::class, 'rest_role_user' ),
 				'permission_callback' => $admin,
 				'args'                => array(
 					'role' => array(
@@ -120,7 +120,7 @@ final class Companion_Rehearsal_Rest {
 			array(
 				'methods'             => 'GET',
 				'callback'            => static function ( $request ) {
-					return rest_ensure_response( Companion_Rehearsal_Runs::find_runs( $request->get_params() ) );
+					return rest_ensure_response( Rehearsal_Runs::find_runs( $request->get_params() ) );
 				},
 				'permission_callback' => $admin,
 				'args'                => array(
@@ -144,7 +144,7 @@ final class Companion_Rehearsal_Rest {
 			'/runs',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( Companion_Rehearsal_Runs::class, 'create_run' ),
+				'callback'            => array( Rehearsal_Runs::class, 'create_run' ),
 				'permission_callback' => static function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -189,7 +189,7 @@ final class Companion_Rehearsal_Rest {
 					// A label the caller picks, such as an agent's task ID, to find this run again.
 					'ref'         => array(
 						'type'    => 'string',
-						'pattern' => Companion_Rehearsal_Runs::REF_PATTERN,
+						'pattern' => Rehearsal_Runs::REF_PATTERN,
 						'default' => '',
 					),
 				),
@@ -205,22 +205,22 @@ final class Companion_Rehearsal_Rest {
 	 */
 	public static function rest_save_recipe( $request ) {
 		$id = (int) $request['id'];
-		if ( $id && Companion_Rehearsal::RECIPE !== get_post_type( $id ) ) {
+		if ( $id && Rehearsal::RECIPE !== get_post_type( $id ) ) {
 			return new WP_Error( 'rehearsal_no_recipe', 'That rehearsal does not exist.', array( 'status' => 404 ) );
 		}
 		$recipe = $request['recipe'];
-		$error  = Companion_Rehearsal_Schema::validate( $recipe );
+		$error  = Rehearsal_Schema::validate( $recipe );
 		$title  = trim( sanitize_text_field( $request['title'] ) );
 		if ( $error || '' === $title ) {
 			return new WP_Error( 'rehearsal_invalid', $error ? $error : 'Give the rehearsal a title.', array( 'status' => 400 ) );
 		}
 		// Posting the same rehearsal again, as a retrying agent does, returns the one already saved.
-		$same = $id ? 0 : Companion_Rehearsal_Store::find_same( $title, $recipe );
+		$same = $id ? 0 : Rehearsal_Store::find_same( $title, $recipe );
 		if ( $same ) {
-			return rest_ensure_response( Companion_Rehearsal_Store::recipe_for_js( get_post( $same ) ) + array( 'existing' => true ) );
+			return rest_ensure_response( Rehearsal_Store::recipe_for_js( get_post( $same ) ) + array( 'existing' => true ) );
 		}
-		$id = Companion_Rehearsal_Store::save_recipe( $id, $title, $recipe );
-		return is_wp_error( $id ) ? $id : rest_ensure_response( Companion_Rehearsal_Store::recipe_for_js( get_post( $id ) ) );
+		$id = Rehearsal_Store::save_recipe( $id, $title, $recipe );
+		return is_wp_error( $id ) ? $id : rest_ensure_response( Rehearsal_Store::recipe_for_js( get_post( $id ) ) );
 	}
 
 	/**
@@ -231,7 +231,7 @@ final class Companion_Rehearsal_Rest {
 	 */
 	public static function rest_delete_recipe( $request ) {
 		$id = (int) $request['id'];
-		if ( Companion_Rehearsal::RECIPE !== get_post_type( $id ) ) {
+		if ( Rehearsal::RECIPE !== get_post_type( $id ) ) {
 			return new WP_Error( 'rehearsal_no_recipe', 'That rehearsal does not exist.', array( 'status' => 404 ) );
 		}
 		wp_trash_post( $id );
@@ -278,16 +278,16 @@ final class Companion_Rehearsal_Rest {
 			return new WP_Error( 'rehearsal_not_recipe', 'The link did not return a rehearsal. It may have been deleted, or the site may have expired.', array( 'status' => 502 ) );
 		}
 		$recipe = $payload['definition'] ?? null;
-		$error  = Companion_Rehearsal_Schema::validate( $recipe );
+		$error  = Rehearsal_Schema::validate( $recipe );
 		if ( $error ) {
-			return new WP_Error( 'rehearsal_invalid', Companion_Rehearsal_Schema::install_error( is_array( $recipe ) ? $recipe : array(), $error ), array( 'status' => 400 ) );
+			return new WP_Error( 'rehearsal_invalid', Rehearsal_Schema::install_error( is_array( $recipe ) ? $recipe : array(), $error ), array( 'status' => 400 ) );
 		}
 		$text     = static fn( $key ) => isset( $payload[ $key ] ) && is_string( $payload[ $key ] ) ? $payload[ $key ] : '';
 		$title    = trim( sanitize_text_field( $text( 'title' ) ) );
 		$title    = '' === $title ? 'Shared rehearsal' : $title;
 		$existing = get_posts(
 			array(
-				'post_type'      => Companion_Rehearsal::RECIPE,
+				'post_type'      => Rehearsal::RECIPE,
 				'post_status'    => 'publish',
 				'meta_key'       => '_rehearsal_source', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => $source, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
@@ -298,14 +298,14 @@ final class Companion_Rehearsal_Rest {
 		$preview  = array(
 			'title'     => $title,
 			'recipe'    => $recipe,
-			'id'        => Companion_Rehearsal_Schema::hash( Companion_Rehearsal_Schema::canonical( $recipe ) ),
+			'id'        => Rehearsal_Schema::hash( Rehearsal_Schema::canonical( $recipe ) ),
 			'site'      => esc_url_raw( $text( 'site' ) ),
 			'build'     => sanitize_text_field( $text( 'build' ) ),
 			'updates'   => $existing ? (int) $existing[0] : 0,
-			'format'    => Companion_Rehearsal_Schema::format_of( $recipe ),
-			'newer'     => Companion_Rehearsal_Schema::is_newer( $recipe ),
+			'format'    => Rehearsal_Schema::format_of( $recipe ),
+			'newer'     => Rehearsal_Schema::is_newer( $recipe ),
 			'shared_by' => sanitize_text_field( $text( 'shared_by' ) ),
-			'missing'   => Companion_Rehearsal_Requirements::missing_requirements( $recipe ),
+			'missing'   => Rehearsal_Requirements::missing_requirements( $recipe ),
 		);
 		if ( $dry_run ) {
 			return $preview;
@@ -313,7 +313,7 @@ final class Companion_Rehearsal_Rest {
 		if ( ! $expect || ! hash_equals( $preview['id'], $expect ) ) {
 			return new WP_Error( 'rehearsal_changed', 'The shared rehearsal changed since you previewed it. Preview it again before installing.', array( 'status' => 409 ) );
 		}
-		$id = Companion_Rehearsal_Store::save_recipe( $existing ? (int) $existing[0] : 0, $title, $recipe, $source );
-		return is_wp_error( $id ) ? $id : Companion_Rehearsal_Store::recipe_for_js( get_post( $id ) ) + array( 'updated' => (bool) $existing );
+		$id = Rehearsal_Store::save_recipe( $existing ? (int) $existing[0] : 0, $title, $recipe, $source );
+		return is_wp_error( $id ) ? $id : Rehearsal_Store::recipe_for_js( get_post( $id ) ) + array( 'updated' => (bool) $existing );
 	}
 }

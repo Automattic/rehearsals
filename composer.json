@@ -1,0 +1,15 @@
+{
+	"name": "automattic/rehearsals",
+	"description": "Repeatable, shareable step-by-step checks of a WordPress site, run in the browser.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require-dev": {
+		"phpunit/phpunit": "^9.6"
+	},
+	"scripts": {
+		"test": "phpunit"
+	},
+	"config": {
+		"sort-packages": true
+	}
+}

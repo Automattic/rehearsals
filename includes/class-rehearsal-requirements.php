@@ -2,7 +2,7 @@
 /**
  * Rehearsal: What a rehearsal needs that this site lacks: plugins, a theme, a role.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * What a rehearsal needs that this site lacks: plugins, a theme, a role.
  */
-final class Companion_Rehearsal_Requirements {
+final class Rehearsal_Requirements {
 	/**
 	 * What the rehearsal needs that isn't active on this site.
 	 *

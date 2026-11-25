@@ -1,8 +1,8 @@
 <?php
 /**
- * Tests for Companion_Rehearsal_Requirements.
+ * Tests for Rehearsal_Requirements.
  *
- * @package companion
+ * @package rehearsals
  */
 
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 class RequirementsTest extends TestCase {
 
 	public function test_indexes_plugins_by_folder_and_text_domain() {
-		$index = Companion_Rehearsal_Requirements::index_plugins(
+		$index = Rehearsal_Requirements::index_plugins(
 			array(
 				'jetpack-dev/jetpack.php' => array( 'Name' => 'Jetpack', 'TextDomain' => 'jetpack' ),
 				'hello.php'               => array( 'Name' => 'Hello Dolly', 'TextDomain' => 'hello-dolly' ),
@@ -26,7 +26,7 @@ class RequirementsTest extends TestCase {
 	}
 
 	public function test_an_active_copy_wins_over_an_inactive_one() {
-		$index = Companion_Rehearsal_Requirements::index_plugins(
+		$index = Rehearsal_Requirements::index_plugins(
 			array(
 				'jetpack/jetpack.php'     => array( 'Name' => 'Jetpack', 'TextDomain' => 'jetpack' ),
 				'jetpack-dev/jetpack.php' => array( 'Name' => 'Jetpack Beta copy', 'TextDomain' => 'jetpack' ),
@@ -43,7 +43,7 @@ class RequirementsTest extends TestCase {
 	 * @param string $expected  "kind:state" of each unmet requirement, comma-separated.
 	 */
 	public function test_finds_what_is_missing( $rehearsal, $expected ) {
-		$missing = Companion_Rehearsal_Requirements::find_missing(
+		$missing = Rehearsal_Requirements::find_missing(
 			$rehearsal,
 			array(
 				'jetpack' => array( 'name' => 'Jetpack', 'active' => true ),

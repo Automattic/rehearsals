@@ -178,7 +178,7 @@
 
 	// Written for a newer Rehearsal than this one: it can run, but some steps may not work.
 	function newerText( format ) {
-		return `Made with a newer version of Rehearsal (format ${ format }; this site understands format ${ data.format }). Some steps may not work; update the Companion plugin to be sure.`;
+		return `Made with a newer version of Rehearsal (format ${ format }; this site understands format ${ data.format }). Some steps may not work; update the Rehearsal plugin to be sure.`;
 	}
 
 	function newerPill( r ) {

@@ -1,8 +1,8 @@
 <?php
 /**
- * Tests for Companion_Rehearsal_Playwright.
+ * Tests for Rehearsal_Playwright.
  *
- * @package companion
+ * @package rehearsals
  */
 
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class PlaywrightTest extends TestCase {
 	 * @return string
 	 */
 	private function generate( array $steps, array $settings = array() ) {
-		return Companion_Rehearsal_Playwright::to_playwright(
+		return Rehearsal_Playwright::to_playwright(
 			array(
 				'title'      => 'A rehearsal',
 				'id'         => str_repeat( 'a', 64 ),
@@ -79,8 +79,8 @@ class PlaywrightTest extends TestCase {
 	}
 
 	public function test_every_step_type_is_in_the_list_above() {
-		$types = array_map( static fn( $row ) => current( array_intersect( array_keys( $row[0] ), Companion_Rehearsal_Schema::STEPS ) ), $this->every_step() );
-		$this->assertEqualsCanonicalizing( Companion_Rehearsal_Schema::STEPS, array_values( array_unique( $types ) ) );
+		$types = array_map( static fn( $row ) => current( array_intersect( array_keys( $row[0] ), Rehearsal_Schema::STEPS ) ), $this->every_step() );
+		$this->assertEqualsCanonicalizing( Rehearsal_Schema::STEPS, array_values( array_unique( $types ) ) );
 	}
 
 	public function every_step() {
@@ -102,7 +102,7 @@ class PlaywrightTest extends TestCase {
 			'dialog'                => array( 'dialog' => 'accept' ),
 		);
 		$values = array( 'toHaveCount' => 2, 'toHaveText' => 'a', 'toContainText' => 'a', 'toHaveValue' => 'a' );
-		foreach ( Companion_Rehearsal_Schema::MATCHERS as $matcher ) {
+		foreach ( Rehearsal_Schema::MATCHERS as $matcher ) {
 			$steps[ "expect $matcher" ] = array( 'expect' => '#a', $matcher => $values[ $matcher ] ?? true );
 		}
 		return array_map( static fn( $step ) => array( $step ), $steps );
@@ -116,7 +116,7 @@ class PlaywrightTest extends TestCase {
 	}
 
 	public function test_reports_the_result_to_the_rehearsal_it_came_from() {
-		$code = Companion_Rehearsal_Playwright::to_playwright(
+		$code = Rehearsal_Playwright::to_playwright(
 			array(
 				'title'      => 'A rehearsal',
 				'id'         => str_repeat( 'c', 64 ),
@@ -159,7 +159,7 @@ class PlaywrightTest extends TestCase {
 			'site'       => 'https://example.test/',
 			'definition' => $def,
 		);
-		$code    = Companion_Rehearsal_Playwright::to_playwright_bundle(
+		$code    = Rehearsal_Playwright::to_playwright_bundle(
 			array(
 				$payload( 'Plain', array( 'steps' => array( array( 'goto' => '/' ) ) ) ),
 				$payload( 'As editor', array( 'role' => 'editor', 'timeout' => 20000, 'steps' => array( array( 'goto' => '/wp-admin/' ) ) ) ),
@@ -182,7 +182,7 @@ class PlaywrightTest extends TestCase {
 	 * @param string $end A character JS reads as the end of a // comment.
 	 */
 	public function test_a_title_stays_on_its_comment_line( $end ) {
-		$code = Companion_Rehearsal_Playwright::to_playwright(
+		$code = Rehearsal_Playwright::to_playwright(
 			array(
 				'title'      => "Two{$end}lines",
 				'id'         => str_repeat( 'a', 64 ),

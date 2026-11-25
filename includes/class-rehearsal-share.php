@@ -2,7 +2,7 @@
 /**
  * Rehearsal: Share links: the public page, and the JSON and Playwright versions of a rehearsal.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Share links: the public page, and the JSON and Playwright versions of a rehearsal.
  */
-final class Companion_Rehearsal_Share {
+final class Rehearsal_Share {
 	/**
 	 * Unguessable per-recipe key, so a share link reveals that one recipe and no other.
 	 *
@@ -41,14 +41,14 @@ final class Companion_Rehearsal_Share {
 		return array(
 			'format' => 'rehearsal',
 			'title'  => $post->post_title, // Plain text, not get_the_title()'s HTML; see Store::recipe_for_js().
-			'id'     => Companion_Rehearsal_Schema::hash( $post->post_content ),
+			'id'     => Rehearsal_Schema::hash( $post->post_content ),
 			// This site's number for it, so a Playwright test can save its result here as a run.
 			'post_id' => $post->ID,
 			'definition' => json_decode( $post->post_content, true ),
 			'source' => self::share_url( $post->ID ),
 			'site'   => home_url( '/' ),
-			'build'  => Companion_Rehearsal_Admin::build(),
-			'shared_by' => Companion_Rehearsal::VERSION,
+			'build'  => Rehearsal_Admin::build(),
+			'shared_by' => Rehearsal::VERSION,
 		);
 	}
 
@@ -76,7 +76,7 @@ final class Companion_Rehearsal_Share {
 		}
 		$id   = self::id_from_token( sanitize_text_field( wp_unslash( $_GET['rehearsal'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$post = $id ? get_post( $id ) : null;
-		if ( ! $post || Companion_Rehearsal::RECIPE !== $post->post_type || 'publish' !== $post->post_status ) {
+		if ( ! $post || Rehearsal::RECIPE !== $post->post_type || 'publish' !== $post->post_status ) {
 			status_header( 404 );
 			nocache_headers();
 			wp_die( 'This rehearsal link is not valid. It may have been deleted, or copied incompletely.', 'Rehearsal not found', array( 'response' => 404 ) );
@@ -91,14 +91,14 @@ final class Companion_Rehearsal_Share {
 		if ( 'github' === $format ) {
 			header( 'Access-Control-Allow-Origin: *' );
 			header( 'Content-Type: text/plain; charset=utf-8' );
-			echo self::to_github( $payload, Companion_Rehearsal_Runs::latest( $post->ID ) ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text Markdown.
+			echo self::to_github( $payload, Rehearsal_Runs::latest( $post->ID ) ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text Markdown.
 			exit;
 		}
 		if ( 'playwright' === $format ) {
 			header( 'Access-Control-Allow-Origin: *' );
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			header( 'Content-Disposition: inline; filename="' . sanitize_title( $payload['title'] ) . '.spec.ts"' );
-			echo Companion_Rehearsal_Playwright::to_playwright( $payload ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text source code.
+			echo Rehearsal_Playwright::to_playwright( $payload ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text source code.
 			exit;
 		}
 		self::render_share_page( $payload );
@@ -173,7 +173,7 @@ final class Companion_Rehearsal_Share {
 	 */
 	public static function run_url( array $ids, $ref = '' ) {
 		$ids = implode( '-', array_map( 'intval', $ids ) );
-		$url = add_query_arg( 'run', $ids . '.' . self::run_key( $ids ), admin_url( 'tools.php?page=' . Companion_Rehearsal::SLUG ) );
+		$url = add_query_arg( 'run', $ids . '.' . self::run_key( $ids ), admin_url( 'tools.php?page=' . Rehearsal::SLUG ) );
 		return '' === $ref ? $url : add_query_arg( 'ref', $ref, $url );
 	}
 
@@ -245,7 +245,7 @@ final class Companion_Rehearsal_Share {
 		$payloads = array();
 		foreach ( self::ids_from_bundle_token( $token ) as $id ) {
 			$post = get_post( $id );
-			if ( $post && Companion_Rehearsal::RECIPE === $post->post_type && 'publish' === $post->post_status && ! Companion_Rehearsal_Schema::validate( json_decode( $post->post_content, true ) ) ) {
+			if ( $post && Rehearsal::RECIPE === $post->post_type && 'publish' === $post->post_status && ! Rehearsal_Schema::validate( json_decode( $post->post_content, true ) ) ) {
 				$payloads[] = self::share_payload( $post );
 			}
 		}
@@ -257,7 +257,7 @@ final class Companion_Rehearsal_Share {
 		header( 'Access-Control-Allow-Origin: *' );
 		header( 'Content-Type: text/plain; charset=utf-8' );
 		header( 'Content-Disposition: ' . ( empty( $_GET['download'] ) ? 'inline' : 'attachment' ) . '; filename="rehearsals.spec.ts"' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		echo Companion_Rehearsal_Playwright::to_playwright_bundle( $payloads, home_url( '/' ) ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text source code.
+		echo Rehearsal_Playwright::to_playwright_bundle( $payloads, home_url( '/' ) ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text source code.
 		exit;
 	}
 
@@ -296,14 +296,14 @@ button { padding: 8px 16px; font: inherit; font-weight: 600; color: #fff; backgr
 			<dt>Requires theme</dt><dd><?php echo esc_html( empty( $payload['definition']['theme'] ) ? 'Any' : implode( ' or ', (array) $payload['definition']['theme'] ) ); ?></dd>
 			<dt>Runs as</dt><dd><?php echo esc_html( empty( $payload['definition']['role'] ) ? 'The logged-in admin' : $payload['definition']['role'] ); ?></dd>
 			<dt>Screen size</dt><dd><?php echo esc_html( empty( $payload['definition']['viewport'] ) ? 'Any' : ucfirst( $payload['definition']['viewport'] ) . ' only' ); ?></dd>
-			<dt>Format</dt><dd><?php echo (int) Companion_Rehearsal_Schema::format_of( $payload['definition'] ); ?> (shared by a site running Rehearsal <?php echo esc_html( $payload['shared_by'] ); ?>)</dd>
+			<dt>Format</dt><dd><?php echo (int) Rehearsal_Schema::format_of( $payload['definition'] ); ?> (shared by a site running Rehearsal <?php echo esc_html( $payload['shared_by'] ); ?>)</dd>
 			<dt>Shared from</dt><dd><?php echo esc_html( $payload['site'] ); ?> (<?php echo esc_html( $payload['build'] ); ?>)</dd>
 			<dt>For CI</dt><dd><a href="<?php echo esc_url( $json_url ); ?>">JSON</a> · <a href="<?php echo esc_url( add_query_arg( 'format', 'playwright', $payload['source'] ) ); ?>">Playwright test</a> · <a href="<?php echo esc_url( add_query_arg( 'format', 'github', $payload['source'] ) ); ?>">GitHub block</a></dd>
 		</dl>
 	</div>
 	<div class="card">
 		<h2 style="margin:0;font-size:17px">Install on your site</h2>
-		<p class="muted" style="margin:4px 0 0">Your site needs Rehearsal, which comes with the Jurassic Ninja Companion plugin. You'll see the rehearsal again before anything is saved.</p>
+		<p class="muted" style="margin:4px 0 0">Your site needs the Rehearsal plugin (Jurassic Ninja sites also get it with the Companion plugin). You'll see the rehearsal again before anything is saved.</p>
 		<form id="install">
 			<input id="site" name="site" aria-label="Your site" placeholder="your-site.jurassic.ninja" required autocomplete="url">
 			<button type="submit">Install</button>

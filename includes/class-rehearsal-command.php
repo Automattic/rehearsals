@@ -2,7 +2,7 @@
 /**
  * Rehearsal: The `wp rehearsal` command, for agents and scripts.
  *
- * @package companion
+ * @package rehearsals
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Saves, lists and installs rehearsals, and reads their runs, from the command line.
  */
-final class Companion_Rehearsal_Command {
+final class Rehearsal_Command {
 
 	/**
 	 * Lists the rehearsals on this site with their latest result.
@@ -40,7 +40,7 @@ final class Companion_Rehearsal_Command {
 	 */
 	public function list_( $args, $assoc_args ) {
 		$format     = $assoc_args['format'] ?? 'table';
-		$rehearsals = Companion_Rehearsal_Store::recipes_for_js();
+		$rehearsals = Rehearsal_Store::recipes_for_js();
 		if ( 'ids' === $format ) {
 			WP_CLI::line( implode( ' ', wp_list_pluck( $rehearsals, 'id' ) ) );
 			return;
@@ -117,7 +117,7 @@ final class Companion_Rehearsal_Command {
 		$shared = is_array( $data ) && 'rehearsal' === ( $data['format'] ?? '' ) && isset( $data['definition'] );
 		$recipe = $shared ? $data['definition'] : $data;
 		$title  = trim( sanitize_text_field( (string) ( $assoc_args['title'] ?? ( $shared ? ( $data['title'] ?? '' ) : '' ) ) ) );
-		$error  = Companion_Rehearsal_Schema::validate( $recipe );
+		$error  = Rehearsal_Schema::validate( $recipe );
 		if ( $error ) {
 			WP_CLI::error( $error );
 		}
@@ -125,17 +125,17 @@ final class Companion_Rehearsal_Command {
 			WP_CLI::error( 'Give the rehearsal a title with --title.' );
 		}
 		$id = (int) ( $assoc_args['id'] ?? 0 );
-		if ( $id && Companion_Rehearsal::RECIPE !== get_post_type( $id ) ) {
+		if ( $id && Rehearsal::RECIPE !== get_post_type( $id ) ) {
 			WP_CLI::error( "There is no rehearsal $id." );
 		}
-		$same = $id ? 0 : Companion_Rehearsal_Store::find_same( $title, $recipe );
+		$same = $id ? 0 : Rehearsal_Store::find_same( $title, $recipe );
 		if ( ! $same ) {
-			$id = Companion_Rehearsal_Store::save_recipe( $id, $title, $recipe );
+			$id = Rehearsal_Store::save_recipe( $id, $title, $recipe );
 			if ( is_wp_error( $id ) ) {
 				WP_CLI::error( $id->get_error_message() );
 			}
 		}
-		$saved = Companion_Rehearsal_Store::recipe_for_js( get_post( $same ? $same : $id ) );
+		$saved = Rehearsal_Store::recipe_for_js( get_post( $same ? $same : $id ) );
 		if ( ! empty( $assoc_args['porcelain'] ) ) {
 			WP_CLI::line( (string) $saved['id'] );
 		} elseif ( 'json' === ( $assoc_args['format'] ?? '' ) ) {
@@ -169,7 +169,7 @@ final class Companion_Rehearsal_Command {
 	 * @param array $assoc_args Named arguments.
 	 */
 	public function install( $args, $assoc_args ) {
-		$preview = Companion_Rehearsal_Rest::install( $args[0], true, '' );
+		$preview = Rehearsal_Rest::install( $args[0], true, '' );
 		if ( is_wp_error( $preview ) ) {
 			WP_CLI::error( $preview->get_error_message() );
 		}
@@ -178,10 +178,10 @@ final class Companion_Rehearsal_Command {
 			WP_CLI::warning( 'This site is missing what it needs, so it will not run until they are active: ' . implode( ', ', wp_list_pluck( $preview['missing'], 'name' ) ) . '.' );
 		}
 		if ( $preview['newer'] ) {
-			WP_CLI::warning( sprintf( 'Made with a newer version of Rehearsal (format %d; this site understands format %d). Some steps may not work.', $preview['format'], Companion_Rehearsal::FORMAT ) );
+			WP_CLI::warning( sprintf( 'Made with a newer version of Rehearsal (format %d; this site understands format %d). Some steps may not work.', $preview['format'], Rehearsal::FORMAT ) );
 		}
 		WP_CLI::confirm( $preview['updates'] ? "Replace your copy (rehearsal {$preview['updates']}) with this version?" : 'Install it?', $assoc_args );
-		$saved = Companion_Rehearsal_Rest::install( $args[0], false, $preview['id'] );
+		$saved = Rehearsal_Rest::install( $args[0], false, $preview['id'] );
 		if ( is_wp_error( $saved ) ) {
 			WP_CLI::error( $saved->get_error_message() );
 		}
@@ -238,7 +238,7 @@ final class Companion_Rehearsal_Command {
 	 * @param array $assoc_args Named arguments.
 	 */
 	public function runs( $args, $assoc_args ) {
-		$found  = Companion_Rehearsal_Runs::find_runs(
+		$found  = Rehearsal_Runs::find_runs(
 			array(
 				'recipe' => (int) ( $assoc_args['rehearsal'] ?? 0 ),
 				'status' => $assoc_args['status'] ?? '',
@@ -294,9 +294,9 @@ final class Companion_Rehearsal_Command {
 	 */
 	public function block( $args ) {
 		$post = get_post( (int) $args[0] );
-		if ( ! $post || Companion_Rehearsal::RECIPE !== $post->post_type || 'publish' !== $post->post_status ) {
+		if ( ! $post || Rehearsal::RECIPE !== $post->post_type || 'publish' !== $post->post_status ) {
 			WP_CLI::error( "There is no rehearsal {$args[0]}." );
 		}
-		WP_CLI::line( Companion_Rehearsal_Share::to_github( Companion_Rehearsal_Share::share_payload( $post ), Companion_Rehearsal_Runs::latest( $post->ID ) ) );
+		WP_CLI::line( Rehearsal_Share::to_github( Rehearsal_Share::share_payload( $post ), Rehearsal_Runs::latest( $post->ID ) ) );
 	}
 }
