@@ -22,6 +22,25 @@ Jurassic Ninja sites also get a copy of Rehearsal with the Companion plugin. Whe
 this plugin steps aside and says so on the Plugins screen, so the two never run at once. Rehearsals
 and runs are stored the same way by both, so nothing is lost when switching.
 
+## Try it in Playground
+
+[Open a demo in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Automattic/rehearsals/trunk/playground/blueprint.json).
+It installs Rehearsals in your browser, adds two rehearsals, one for the front end (the "Hello world!"
+post opens) and one for wp-admin (a category is added), and runs them as soon as Tools → Rehearsal opens.
+Nothing is installed anywhere else.
+
+The same demo runs locally with the [Playground CLI](https://wordpress.github.io/wordpress-playground/developers/local-development/wp-playground-cli),
+on the code in your checkout:
+
+```bash
+npx @wp-playground/cli@latest server --blueprint=./playground/local.json \
+  --mount=.:/wordpress/wp-content/plugins/rehearsals
+```
+
+Open `http://127.0.0.1:9400/wp-admin/tools.php?page=rehearsal`. `playground/blueprint.json` installs
+from GitHub instead, and `.wordpress-org/blueprints/blueprint.json` is the copy behind the wordpress.org
+Live Preview button.
+
 ## Quick start
 
 1. Open **Tools → Rehearsal** on a Jurassic Ninja site.
@@ -225,6 +244,15 @@ requests are noted in the report instead of counting as console errors.
 
 ## For agents and scripts
 
+**AI agents** have a skill for this: [`skills/rehearsals`](skills/rehearsals/SKILL.md) teaches an agent
+to write a rehearsal, run it headless with [`run-link.cjs`](skills/rehearsals/scripts/run-link.cjs) and
+report the result. [docs/agent-setup.md](docs/agent-setup.md) gets an agent there: installing the
+skill, putting the plugin on a site, a browser and a login. In Claude Code:
+
+```
+/plugin install rehearsals --marketplace Automattic/rehearsals
+```
+
 `wp rehearsal` does what the screen does, without a browser:
 
 ```bash
@@ -297,10 +325,17 @@ composer install
 composer test
 ```
 
+### Agent files
+
+The skill in `skills/rehearsals/`, `docs/agent-setup.md` and the Claude Code manifests in
+`.claude-plugin/` describe the plugin's behaviour. When steps, matchers, CLI commands or run-link results
+change, update them too: `skills/rehearsals/reference.md` copies the step tables above. None of them
+ship in the wordpress.org zip.
+
 ### Releasing to wordpress.org
 
 `bin/build.sh` builds the release into `build/rehearsals.zip`, leaving out what `.distignore` lists
-(tests, dev tooling, screenshots, this README). Check that copy with
+(tests, dev tooling, screenshots, the agent skill and docs, this README). Check that copy with
 [Plugin Check](https://wordpress.org/plugins/plugin-check/) before uploading:
 
 ```bash
@@ -308,6 +343,6 @@ bin/build.sh
 wp plugin check /path/to/build/rehearsals
 ```
 
-For a release, raise the version in `rehearsals.php`, `Rehearsal::VERSION` and the `Stable tag` in
-`readme.txt` together, and add a changelog entry to `readme.txt`. The directory's screenshots live in
+For a release, raise the version in `rehearsals.php`, `Rehearsal::VERSION`, the `Stable tag` in
+`readme.txt` and `.claude-plugin/plugin.json` together, and add a changelog entry to `readme.txt`. The directory's screenshots live in
 `.wordpress-org/` and go in the SVN `assets/` folder, not in the plugin.

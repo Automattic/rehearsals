@@ -14,3 +14,7 @@
 /composer.lock
 /phpunit.xml.dist
 /README.md
+/.claude-plugin
+/docs
+/skills
+.DS_Store

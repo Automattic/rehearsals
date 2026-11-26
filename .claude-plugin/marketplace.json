@@ -1,0 +1,11 @@
+{
+	"name": "rehearsals",
+	"owner": { "name": "Automattic" },
+	"plugins": [
+		{
+			"name": "rehearsals",
+			"source": "./",
+			"description": "Teaches agents to verify WordPress changes with Rehearsals: repeatable, shareable browser checks saved and run on the site."
+		}
+	]
+}

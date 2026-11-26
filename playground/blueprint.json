@@ -1,0 +1,59 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Rehearsals demo",
+		"description": "Installs Rehearsals with two demo rehearsals, one for the front end and one for wp-admin, and runs them.",
+		"author": "Automattic",
+		"categories": [
+			"Testing"
+		]
+	},
+	"landingPage": "/wp-admin/tools.php?page=rehearsal",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"login": true,
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "git:directory",
+				"url": "https://github.com/Automattic/rehearsals",
+				"ref": "trunk",
+				"refType": "branch"
+			},
+			"options": {
+				"activate": true,
+				"targetFolderName": "rehearsals"
+			}
+		},
+		{
+			"step": "writeFile",
+			"path": "/tmp/rehearsal-front-end.json",
+			"data": "{\n \"steps\": [\n  {\n   \"goto\": \"/\"\n  },\n  {\n   \"click\": \"a:has-text(\\\"Hello world!\\\")\"\n  },\n  {\n   \"expect\": \"h1\",\n   \"toHaveText\": \"Hello world!\"\n  },\n  {\n   \"expectText\": \"Welcome to WordPress\",\n   \"in\": \"main\"\n  },\n  {\n   \"expectNoConsoleErrors\": true\n  }\n ]\n}"
+		},
+		{
+			"step": "writeFile",
+			"path": "/tmp/rehearsal-back-end.json",
+			"data": "{\n \"steps\": [\n  {\n   \"goto\": \"/wp-admin/edit-tags.php?taxonomy=category\"\n  },\n  {\n   \"fill\": \"#tag-name\",\n   \"value\": \"Rehearsal {{run}}\"\n  },\n  {\n   \"click\": \"#submit\"\n  },\n  {\n   \"expect\": \"#the-list\",\n   \"toContainText\": \"Rehearsal {{run}}\"\n  },\n  {\n   \"expectNoConsoleErrors\": true\n  }\n ]\n}"
+		},
+		{
+			"step": "wp-cli",
+			"command": "wp rehearsal save /tmp/rehearsal-front-end.json --title=\"Front end: the Hello world! post opens\""
+		},
+		{
+			"step": "wp-cli",
+			"command": "wp rehearsal save /tmp/rehearsal-back-end.json --title=\"Back end: a category is added (changes categories)\""
+		},
+		{
+			"step": "mkdir",
+			"path": "/wordpress/wp-content/mu-plugins"
+		},
+		{
+			"step": "writeFile",
+			"path": "/wordpress/wp-content/mu-plugins/rehearsal-playground-autorun.php",
+			"data": "<?php\n/**\n * Playground only: the first time Tools > Rehearsal opens, run the demo rehearsals straight away.\n * Once a run is saved, the screen opens normally.\n */\nadd_action( 'load-tools_page_rehearsal', function () {\n\tif ( isset( $_GET['run'] ) || ! class_exists( 'Rehearsal_Share' ) ) {\n\t\treturn;\n\t}\n\tif ( get_posts( array( 'post_type' => 'rehearsal_run', 'post_status' => 'any', 'numberposts' => 1, 'fields' => 'ids' ) ) ) {\n\t\treturn;\n\t}\n\t$ids = get_posts( array( 'post_type' => 'rehearsal', 'numberposts' => -1, 'orderby' => 'ID', 'order' => 'ASC', 'fields' => 'ids' ) );\n\tif ( $ids ) {\n\t\twp_safe_redirect( Rehearsal_Share::run_url( $ids, 'playground' ) );\n\t\texit;\n\t}\n} );\n"
+		}
+	]
+}

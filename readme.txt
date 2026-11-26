@@ -24,6 +24,7 @@ A rehearsal is a short list of steps written as JSON: go to a page, click, fill 
 * **Requirements.** A rehearsal can say which plugins, theme or role it needs, and warns before running on a site without them.
 * **Playwright export.** Turn selected rehearsals into a standalone Playwright test for CI. The test saves its results back to the site.
 * **WP-CLI and REST.** `wp rehearsal` and the `rehearsal/v1` REST routes save, list, install and report on rehearsals without a browser.
+* **Made for AI agents too.** A ready-made agent skill teaches coding agents to write a rehearsal for a change, run it headless and put the result in a pull request.
 
 Only administrators can see, edit or run rehearsals.
 
@@ -65,6 +66,14 @@ A small recorder collects script errors and page-load timings for the run. It is
 = What can't the browser runner do? =
 
 It cannot open other sites, take screenshots, open menus that only appear on CSS `:hover`, or type characters with `press`. Export the rehearsal to Playwright for those.
+
+= Can AI agents use it? =
+
+Yes. The GitHub repository has an agent skill (`skills/rehearsals`) and a setup guide (`docs/agent-setup.md`). With them, an agent such as Claude Code or Codex can save a rehearsal with WP-CLI, run it in a headless browser through a run link, and read the saved result. In Claude Code, install the skill with `/plugin install rehearsals --marketplace Automattic/rehearsals`.
+
+= Can I try it without installing it? =
+
+Yes. Press Live Preview on this page, or open the demo from the GitHub README in WordPress Playground. It runs two rehearsals, one on the front end and one in wp-admin, as soon as Tools → Rehearsal opens.
 
 = Is there a WP-CLI command? =
 

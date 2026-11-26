@@ -1,0 +1,10 @@
+{
+	"name": "rehearsals",
+	"version": "0.21.0",
+	"description": "Teaches agents to verify WordPress changes with Rehearsals: repeatable, shareable browser checks saved and run on the site.",
+	"author": { "name": "Automattic" },
+	"homepage": "https://github.com/Automattic/rehearsals",
+	"repository": "https://github.com/Automattic/rehearsals",
+	"license": "GPL-2.0-or-later",
+	"keywords": [ "wordpress", "testing", "qa", "playwright" ]
+}
