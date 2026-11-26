@@ -1,4 +1,4 @@
-=== Rehearsal ===
+=== Rehearsals ===
 Contributors: automattic
 Tags: testing, qa, end-to-end, playwright, development
 Requires at least: 6.0

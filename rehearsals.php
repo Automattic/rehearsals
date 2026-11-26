@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Rehearsal
+ * Plugin Name: Rehearsals
  * Plugin URI: https://github.com/Automattic/rehearsals
  * Description: Repeatable, shareable step-by-step checks of your site, run in the browser from Tools → Rehearsal.
  * Version: 0.21.0
