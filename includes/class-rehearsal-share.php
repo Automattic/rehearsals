@@ -79,7 +79,7 @@ final class Rehearsal_Share {
 		if ( ! $post || Rehearsal::RECIPE !== $post->post_type || 'publish' !== $post->post_status ) {
 			status_header( 404 );
 			nocache_headers();
-			wp_die( 'This rehearsal link is not valid. It may have been deleted, or copied incompletely.', 'Rehearsal not found', array( 'response' => 404 ) );
+			wp_die( esc_html__( 'This rehearsal link is not valid. It may have been deleted, or copied incompletely.', 'rehearsals' ), esc_html__( 'Rehearsal not found', 'rehearsals' ), array( 'response' => 404 ) );
 		}
 		$payload = self::share_payload( $post );
 		nocache_headers();
@@ -252,7 +252,7 @@ final class Rehearsal_Share {
 		nocache_headers();
 		if ( ! $payloads ) {
 			status_header( 404 );
-			wp_die( 'This link is not valid, or its rehearsals were deleted.', 'Rehearsals not found', array( 'response' => 404 ) );
+			wp_die( esc_html__( 'This link is not valid, or its rehearsals were deleted.', 'rehearsals' ), esc_html__( 'Rehearsals not found', 'rehearsals' ), array( 'response' => 404 ) );
 		}
 		header( 'Access-Control-Allow-Origin: *' );
 		header( 'Content-Type: text/plain; charset=utf-8' );
@@ -268,12 +268,12 @@ final class Rehearsal_Share {
 	 */
 	private static function render_share_page( array $payload ) {
 		$json_url = add_query_arg( 'format', 'json', $payload['source'] );
-		$covers   = empty( $payload['definition']['covers'] ) ? 'Nothing: run it by hand only.' : implode( ', ', $payload['definition']['covers'] );
+		$covers   = empty( $payload['definition']['covers'] ) ? __( 'Nothing: run it by hand only.', 'rehearsals' ) : implode( ', ', $payload['definition']['covers'] );
 		header( 'Content-Type: text/html; charset=utf-8' );
 		?>
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?php echo esc_html( $payload['title'] ); ?> · Rehearsal</title>
+<html lang="<?php echo esc_attr( get_bloginfo( 'language' ) ); ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?php /* translators: %s: rehearsal title. */ echo esc_html( sprintf( __( '%s · Rehearsal', 'rehearsals' ), $payload['title'] ) ); ?></title>
 <style>
 body { margin: 0; background: #f0f0f1; color: #1d2327; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 main { max-inline-size: 760px; margin: 40px auto; padding-inline: 16px; }
@@ -286,27 +286,27 @@ button { padding: 8px 16px; font: inherit; font-weight: 600; color: #fff; backgr
 </style></head>
 <body><main>
 	<div class="card">
-		<div class="muted">Rehearsal</div>
+		<div class="muted"><?php esc_html_e( 'Rehearsal', 'rehearsals' ); ?></div>
 		<h1><?php echo esc_html( $payload['title'] ); ?></h1>
 		<dl>
-			<dt>Rehearsal ID</dt><dd><code><?php echo esc_html( substr( $payload['id'], 0, 7 ) ); ?></code></dd>
-			<dt>Steps</dt><dd><?php echo (int) count( $payload['definition']['steps'] ); ?></dd>
-			<dt>Runs in CI when</dt><dd><?php echo esc_html( $covers ); ?></dd>
-			<dt>Requires plugins</dt><dd><?php echo esc_html( empty( $payload['definition']['requires'] ) ? 'None' : implode( ', ', $payload['definition']['requires'] ) ); ?></dd>
-			<dt>Requires theme</dt><dd><?php echo esc_html( empty( $payload['definition']['theme'] ) ? 'Any' : implode( ' or ', (array) $payload['definition']['theme'] ) ); ?></dd>
-			<dt>Runs as</dt><dd><?php echo esc_html( empty( $payload['definition']['role'] ) ? 'The logged-in admin' : $payload['definition']['role'] ); ?></dd>
-			<dt>Screen size</dt><dd><?php echo esc_html( empty( $payload['definition']['viewport'] ) ? 'Any' : ucfirst( $payload['definition']['viewport'] ) . ' only' ); ?></dd>
-			<dt>Format</dt><dd><?php echo (int) Rehearsal_Schema::format_of( $payload['definition'] ); ?> (shared by a site running Rehearsal <?php echo esc_html( $payload['shared_by'] ); ?>)</dd>
-			<dt>Shared from</dt><dd><?php echo esc_html( $payload['site'] ); ?> (<?php echo esc_html( $payload['build'] ); ?>)</dd>
-			<dt>For CI</dt><dd><a href="<?php echo esc_url( $json_url ); ?>">JSON</a> · <a href="<?php echo esc_url( add_query_arg( 'format', 'playwright', $payload['source'] ) ); ?>">Playwright test</a> · <a href="<?php echo esc_url( add_query_arg( 'format', 'github', $payload['source'] ) ); ?>">GitHub block</a></dd>
+			<dt><?php esc_html_e( 'Rehearsal ID', 'rehearsals' ); ?></dt><dd><code><?php echo esc_html( substr( $payload['id'], 0, 7 ) ); ?></code></dd>
+			<dt><?php esc_html_e( 'Steps', 'rehearsals' ); ?></dt><dd><?php echo (int) count( $payload['definition']['steps'] ); ?></dd>
+			<dt><?php esc_html_e( 'Runs in CI when', 'rehearsals' ); ?></dt><dd><?php echo esc_html( $covers ); ?></dd>
+			<dt><?php esc_html_e( 'Requires plugins', 'rehearsals' ); ?></dt><dd><?php echo esc_html( empty( $payload['definition']['requires'] ) ? __( 'None', 'rehearsals' ) : implode( ', ', $payload['definition']['requires'] ) ); ?></dd>
+			<dt><?php esc_html_e( 'Requires theme', 'rehearsals' ); ?></dt><dd><?php echo esc_html( empty( $payload['definition']['theme'] ) ? __( 'Any', 'rehearsals' ) : implode( ' or ', (array) $payload['definition']['theme'] ) ); ?></dd>
+			<dt><?php esc_html_e( 'Runs as', 'rehearsals' ); ?></dt><dd><?php echo esc_html( empty( $payload['definition']['role'] ) ? __( 'The logged-in admin', 'rehearsals' ) : $payload['definition']['role'] ); ?></dd>
+			<dt><?php esc_html_e( 'Screen size', 'rehearsals' ); ?></dt><dd><?php /* translators: %s: screen size, desktop or mobile. */ echo esc_html( empty( $payload['definition']['viewport'] ) ? __( 'Any', 'rehearsals' ) : sprintf( __( '%s only', 'rehearsals' ), ucfirst( $payload['definition']['viewport'] ) ) ); ?></dd>
+			<dt><?php esc_html_e( 'Format', 'rehearsals' ); ?></dt><dd><?php /* translators: 1: rehearsal format number, 2: Rehearsal plugin version. */ echo esc_html( sprintf( __( '%1$d (shared by a site running Rehearsal %2$s)', 'rehearsals' ), Rehearsal_Schema::format_of( $payload['definition'] ), $payload['shared_by'] ) ); ?></dd>
+			<dt><?php esc_html_e( 'Shared from', 'rehearsals' ); ?></dt><dd><?php /* translators: 1: site URL, 2: what the site runs: WordPress, theme and plugin versions. */ echo esc_html( sprintf( __( '%1$s (%2$s)', 'rehearsals' ), $payload['site'], $payload['build'] ) ); ?></dd>
+			<dt><?php esc_html_e( 'For CI', 'rehearsals' ); ?></dt><dd><a href="<?php echo esc_url( $json_url ); ?>"><?php esc_html_e( 'JSON', 'rehearsals' ); ?></a> · <a href="<?php echo esc_url( add_query_arg( 'format', 'playwright', $payload['source'] ) ); ?>"><?php esc_html_e( 'Playwright test', 'rehearsals' ); ?></a> · <a href="<?php echo esc_url( add_query_arg( 'format', 'github', $payload['source'] ) ); ?>"><?php esc_html_e( 'GitHub block', 'rehearsals' ); ?></a></dd>
 		</dl>
 	</div>
 	<div class="card">
-		<h2 style="margin:0;font-size:17px">Install on your site</h2>
-		<p class="muted" style="margin:4px 0 0">Your site needs the Rehearsal plugin (Jurassic Ninja sites also get it with the Companion plugin). You'll see the rehearsal again before anything is saved.</p>
+		<h2 style="margin:0;font-size:17px"><?php esc_html_e( 'Install on your site', 'rehearsals' ); ?></h2>
+		<p class="muted" style="margin:4px 0 0"><?php esc_html_e( 'Your site needs the Rehearsal plugin (Jurassic Ninja sites also get it with the Companion plugin). You\'ll see the rehearsal again before anything is saved.', 'rehearsals' ); ?></p>
 		<form id="install">
-			<input id="site" name="site" aria-label="Your site" placeholder="your-site.jurassic.ninja" required autocomplete="url">
-			<button type="submit">Install</button>
+			<input id="site" name="site" aria-label="<?php esc_attr_e( 'Your site', 'rehearsals' ); ?>" placeholder="your-site.jurassic.ninja" required autocomplete="url">
+			<button type="submit"><?php esc_html_e( 'Install', 'rehearsals' ); ?></button>
 		</form>
 	</div>
 	<div class="card"><pre><?php echo esc_html( wp_json_encode( $payload['definition'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ); ?></pre></div>

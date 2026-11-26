@@ -187,7 +187,11 @@ final class Rehearsal_Runs {
 			'id'        => $run->ID,
 			'recipeId'  => (int) $run->post_parent,
 			// The run's own title ("<recipe>: <status>") outlives a permanently deleted recipe.
-			'title'     => get_post( $run->post_parent ) ? get_post( $run->post_parent )->post_title : preg_replace( '/: (pass|fail|queued)$/', '', $run->post_title ) . ' (rehearsal deleted)',
+			'title'     => get_post( $run->post_parent ) ? get_post( $run->post_parent )->post_title : sprintf(
+				/* translators: %s: title of a rehearsal that has since been deleted. */
+				__( '%s (rehearsal deleted)', 'rehearsals' ),
+				preg_replace( '/: (pass|fail|queued)$/', '', $run->post_title )
+			),
 			'status'    => get_post_meta( $run->ID, '_rehearsal_status', true ),
 			// Recomputed from the steps the run used, so runs saved before IDs ignored key order still match.
 			'hash'      => '' === $recipe ? get_post_meta( $run->ID, '_rehearsal_recipe_hash', true ) : Rehearsal_Schema::hash( $recipe ),
@@ -214,14 +218,19 @@ final class Rehearsal_Runs {
 	public static function create_run( $request ) {
 		$recipe = get_post( $request['recipe_id'] );
 		if ( ! $recipe || Rehearsal::RECIPE !== $recipe->post_type ) {
-			return new WP_Error( 'rehearsal_no_recipe', 'That rehearsal does not exist.', array( 'status' => 404 ) );
+			return new WP_Error( 'rehearsal_no_recipe', __( 'That rehearsal does not exist.', 'rehearsals' ), array( 'status' => 404 ) );
 		}
 		if ( ! hash_equals( Rehearsal_Schema::hash( $recipe->post_content ), (string) $request['recipe_hash'] ) ) {
-			return new WP_Error( 'rehearsal_recipe_changed', 'The rehearsal changed while it was running. Reload and run it again.', array( 'status' => 409 ) );
+			return new WP_Error( 'rehearsal_recipe_changed', __( 'The rehearsal changed while it was running. Reload and run it again.', 'rehearsals' ), array( 'status' => 409 ) );
 		}
 		$missing = Rehearsal_Requirements::missing_requirements( (array) json_decode( $recipe->post_content, true ) );
 		if ( $missing ) {
-			return new WP_Error( 'rehearsal_needs_plugins', 'This rehearsal needs what is not active here: ' . implode( ', ', wp_list_pluck( $missing, 'name' ) ) . '.', array( 'status' => 409 ) );
+			return new WP_Error(
+				'rehearsal_needs_plugins',
+				/* translators: %s: comma-separated list of the plugins, themes or roles the rehearsal needs. */
+				sprintf( __( 'This rehearsal needs what is not active here: %s.', 'rehearsals' ), implode( ', ', wp_list_pluck( $missing, 'name' ) ) ),
+				array( 'status' => 409 )
+			);
 		}
 
 		$log       = self::clean_log( (array) $request['log'] );

@@ -5,6 +5,7 @@
 		return;
 	}
 	const apiFetch = window.wp.apiFetch;
+	const { __, _n, sprintf } = window.wp.i18n;
 	const DEFAULT_TIMEOUT = 10000;
 	const STEP_PAUSE = 150;
 	const IMPLICIT_ROLES = {
@@ -35,52 +36,52 @@
 
 	root.innerHTML = `
 		<div class="rh-progress" id="rh-progress" role="status" hidden>
-			<div class="rh-progress-text"><span id="rh-progress-text"></span><button type="button" class="button-link" id="rh-progress-close" hidden aria-label="Hide progress">×</button></div>
+			<div class="rh-progress-text"><span id="rh-progress-text"></span><button type="button" class="button-link" id="rh-progress-close" hidden aria-label="${ esc( __( 'Hide progress', 'rehearsals' ) ) }">×</button></div>
 			<div class="rh-progress-track" aria-hidden="true"><span id="rh-progress-fill"></span></div>
 		</div>
 		<div class="rh-toolbar">
 			<div class="rh-toolbar-group">
-				<button type="button" class="button button-primary" id="rh-run">Run selected</button>
-				<button type="button" class="button" id="rh-run-failed">Run failed</button>
+				<button type="button" class="button button-primary" id="rh-run">${ esc( __( 'Run selected', 'rehearsals' ) ) }</button>
+				<button type="button" class="button" id="rh-run-failed">${ esc( __( 'Run failed', 'rehearsals' ) ) }</button>
 				<span class="rh-estimate" id="rh-estimate"></span>
 			</div>
 			<div class="rh-toolbar-group">
-				<button type="button" class="button rh-quiet" id="rh-playwright" title="Export the selected rehearsals as one Playwright test file">Run in Playwright</button>
-				<button type="button" class="button rh-quiet" id="rh-install">Install from link</button>
-				<button type="button" class="button" id="rh-add">Add rehearsal</button>
+				<button type="button" class="button rh-quiet" id="rh-playwright" title="${ esc( __( 'Export the selected rehearsals as one Playwright test file', 'rehearsals' ) ) }">${ esc( __( 'Run in Playwright', 'rehearsals' ) ) }</button>
+				<button type="button" class="button rh-quiet" id="rh-install">${ esc( __( 'Install from link', 'rehearsals' ) ) }</button>
+				<button type="button" class="button" id="rh-add">${ esc( __( 'Add rehearsal', 'rehearsals' ) ) }</button>
 			</div>
 		</div>
 		<p class="rh-autorun" id="rh-autorun" role="status" hidden></p>
 		<div class="rh-layout">
 			<div class="rh-main" id="rh-recipes"></div>
-			<aside class="rh-frame" aria-label="Test frame">
+			<aside class="rh-frame" aria-label="${ esc( __( 'Test frame', 'rehearsals' ) ) }">
 				<div class="rh-frame-tools">
-					<span class="rh-segmented" role="group" aria-label="Viewport">
-						<button type="button" class="button button-small" data-viewport="desktop" title="Run at desktop width, scaled to fit">Desktop</button>
-						<button type="button" class="button button-small" data-viewport="mobile" title="Run at phone width (390 × 844), so pages use their mobile layout">Mobile</button>
+					<span class="rh-segmented" role="group" aria-label="${ esc( __( 'Viewport', 'rehearsals' ) ) }">
+						<button type="button" class="button button-small" data-viewport="desktop" title="${ esc( __( 'Run at desktop width, scaled to fit', 'rehearsals' ) ) }">${ esc( __( 'Desktop', 'rehearsals' ) ) }</button>
+						<button type="button" class="button button-small" data-viewport="mobile" title="${ esc( __( 'Run at phone width (390 × 844), so pages use their mobile layout', 'rehearsals' ) ) }">${ esc( __( 'Mobile', 'rehearsals' ) ) }</button>
 					</span>
 					<span class="rh-muted" id="rh-viewport-note"></span>
 				</div>
-				<div class="rh-frame-bar"><span id="rh-frame-url">Waiting for a run</span><span id="rh-frame-step"></span></div>
+				<div class="rh-frame-bar"><span id="rh-frame-url">${ esc( __( 'Waiting for a run', 'rehearsals' ) ) }</span><span id="rh-frame-step"></span></div>
 				<div class="rh-frame-viewport" id="rh-frame-viewport">
-					<iframe name="rehearsal" id="rh-frame" title="Test frame the runner drives" src="about:blank"></iframe>
-					<p class="rh-frame-idle" id="rh-frame-idle">Each step's page loads here when you press Run.</p>
+					<iframe name="rehearsal" id="rh-frame" title="${ esc( __( 'Test frame the runner drives', 'rehearsals' ) ) }" src="about:blank"></iframe>
+					<p class="rh-frame-idle" id="rh-frame-idle">${ esc( __( "Each step's page loads here when you press Run.", 'rehearsals' ) ) }</p>
 				</div>
 			</aside>
 		</div>
-		<h2 id="rh-runs-heading">Recent runs</h2>
+		<h2 id="rh-runs-heading">${ esc( __( 'Recent runs', 'rehearsals' ) ) }</h2>
 		<div class="rh-run-filters">
-			<input type="search" id="rh-f-search" placeholder="Search by rehearsal or run #" aria-label="Search runs">
-			<select id="rh-f-recipe" aria-label="Recipe"></select>
-			<select id="rh-f-status" aria-label="Result">
-				<option value="">Any result</option><option value="fail">Failed</option><option value="pass">Passed</option><option value="queued">Needs Playwright</option>
+			<input type="search" id="rh-f-search" placeholder="${ esc( __( 'Search by rehearsal or run #', 'rehearsals' ) ) }" aria-label="${ esc( __( 'Search runs', 'rehearsals' ) ) }">
+			<select id="rh-f-recipe" aria-label="${ esc( __( 'Recipe', 'rehearsals' ) ) }"></select>
+			<select id="rh-f-status" aria-label="${ esc( __( 'Result', 'rehearsals' ) ) }">
+				<option value="">${ esc( __( 'Any result', 'rehearsals' ) ) }</option><option value="fail">${ esc( __( 'Failed', 'rehearsals' ) ) }</option><option value="pass">${ esc( __( 'Passed', 'rehearsals' ) ) }</option><option value="queued">${ esc( __( 'Needs Playwright', 'rehearsals' ) ) }</option>
 			</select>
-			<select id="rh-f-user" aria-label="Run by"></select>
-			<button type="button" class="button-link" id="rh-f-clear" hidden>Clear filters</button>
+			<select id="rh-f-user" aria-label="${ esc( __( 'Run by', 'rehearsals' ) ) }"></select>
+			<button type="button" class="button-link" id="rh-f-clear" hidden>${ esc( __( 'Clear filters', 'rehearsals' ) ) }</button>
 			<span class="rh-muted" id="rh-f-count"></span>
 		</div>
 		<div id="rh-history"></div>
-		<p><button type="button" class="button" id="rh-more" hidden>Load more runs</button></p>
+		<p><button type="button" class="button" id="rh-more" hidden>${ esc( __( 'Load more runs', 'rehearsals' ) ) }</button></p>
 		<dialog class="rh-modal" id="rh-modal" aria-labelledby="rh-modal-title"></dialog>`;
 
 	const frame = document.getElementById( 'rh-frame' );
@@ -135,7 +136,9 @@
 			b.disabled = state.running;
 		} );
 		document.getElementById( 'rh-viewport-note' ).textContent =
-			state.runViewport && state.runViewport !== state.viewport ? `This rehearsal runs on ${ state.runViewport } only` : '';
+			state.runViewport && state.runViewport !== state.viewport
+				? /* translators: %s: screen size, desktop or mobile. */ sprintf( __( 'This rehearsal runs on %s only', 'rehearsals' ), state.runViewport )
+				: '';
 	}
 
 	function setViewport( name ) {
@@ -159,11 +162,11 @@
 
 	function statusOf( r ) {
 		if ( r.live ) {
-			if ( r.live.status === 'running' ) return [ 'running', 'Running…' ];
-			if ( r.live.status === 'unsaved' ) return [ 'fail', 'Not saved' ];
+			if ( r.live.status === 'running' ) return [ 'running', __( 'Running…', 'rehearsals' ) ];
+			if ( r.live.status === 'unsaved' ) return [ 'fail', __( 'Not saved', 'rehearsals' ) ];
 		}
-		if ( ! r.lastRun ) return [ '', 'Not run' ];
-		if ( r.lastRun.hash !== r.hash ) return [ 'stale', 'Stale: rehearsal changed' ];
+		if ( ! r.lastRun ) return [ '', __( 'Not run', 'rehearsals' ) ];
+		if ( r.lastRun.hash !== r.hash ) return [ 'stale', __( 'Stale: rehearsal changed', 'rehearsals' ) ];
 		return pillFor( r.lastRun.status );
 	}
 
@@ -178,32 +181,53 @@
 
 	// Written for a newer Rehearsal than this one: it can run, but some steps may not work.
 	function newerText( format ) {
-		return `Made with a newer version of Rehearsal (format ${ format }; this site understands format ${ data.format }). Some steps may not work; update the Rehearsal plugin to be sure.`;
+		return sprintf(
+			/* translators: 1: the rehearsal's format number, 2: the newest format this site understands. */
+			__( 'Made with a newer version of Rehearsal (format %1$s; this site understands format %2$s). Some steps may not work; update the Rehearsal plugin to be sure.', 'rehearsals' ),
+			format,
+			data.format
+		);
 	}
 
 	function newerPill( r ) {
-		return r.newer ? ` <span class="rh-pill stale" title="${ esc( newerText( r.format ) ) }">Newer format</span>` : '';
+		return r.newer ? ` <span class="rh-pill stale" title="${ esc( newerText( r.format ) ) }">${ esc( __( 'Newer format', 'rehearsals' ) ) }</span>` : '';
 	}
 
 	function needsPill( r ) {
 		if ( ! blocked( r ) ) return '';
 		const why = r.missing
-			.map( ( m ) => m.kind === 'role' ? `there is no "${ m.name }" role on this site` : `${ m.name } ${ m.kind === 'theme' ? ( m.state === 'inactive' ? 'is installed but not the active theme' : 'is not installed' ) : m.state === 'inactive' ? 'is installed but not active' : 'is not installed' }` )
+			.map( ( m ) => {
+				if ( m.kind === 'role' ) {
+					/* translators: %s: role slug, such as editor. */
+					return sprintf( __( 'there is no "%s" role on this site', 'rehearsals' ), m.name );
+				}
+				if ( m.state !== 'inactive' ) {
+					/* translators: %s: plugin or theme name. */
+					return sprintf( __( '%s is not installed', 'rehearsals' ), m.name );
+				}
+				return m.kind === 'theme'
+					? /* translators: %s: theme name. */ sprintf( __( '%s is installed but not the active theme', 'rehearsals' ), m.name )
+					: /* translators: %s: plugin name. */ sprintf( __( '%s is installed but not active', 'rehearsals' ), m.name );
+			} )
 			.join( '; ' );
-		return ` <span class="rh-pill fail" title="${ esc( why ) }">Needs ${ esc( r.missing.map( ( m ) => m.name ).join( ', ' ) ) }</span>`;
+		/* translators: %s: comma-separated list of the plugins, themes or roles the rehearsal needs. */
+		const needs = sprintf( __( 'Needs %s', 'rehearsals' ), r.missing.map( ( m ) => m.name ).join( ', ' ) );
+		return ` <span class="rh-pill fail" title="${ esc( why ) }">${ esc( needs ) }</span>`;
 	}
 
 	function pillFor( status ) {
 		return (
-			{ pass: [ 'pass', 'Passed' ], fail: [ 'fail', 'Failed' ], queued: [ 'queued', 'Needs Playwright' ] }[ status ] || [ '', status ]
+			{ pass: [ 'pass', __( 'Passed', 'rehearsals' ) ], fail: [ 'fail', __( 'Failed', 'rehearsals' ) ], queued: [ 'queued', __( 'Needs Playwright', 'rehearsals' ) ] }[ status ] || [ '', status ]
 		);
 	}
 
 	function ago( iso ) {
 		const s = Math.round( ( Date.now() - new Date( iso ).getTime() ) / 1000 );
-		if ( s < 60 ) return 'just now';
-		if ( s < 3600 ) return `${ Math.round( s / 60 ) } min ago`;
-		if ( s < 86400 ) return `${ Math.round( s / 3600 ) } h ago`;
+		if ( s < 60 ) return __( 'just now', 'rehearsals' );
+		/* translators: %d: number of minutes. */
+		if ( s < 3600 ) return sprintf( _n( '%d min ago', '%d min ago', Math.round( s / 60 ), 'rehearsals' ), Math.round( s / 60 ) );
+		/* translators: %d: number of hours. */
+		if ( s < 86400 ) return sprintf( _n( '%d h ago', '%d h ago', Math.round( s / 3600 ), 'rehearsals' ), Math.round( s / 3600 ) );
 		return new Date( iso ).toLocaleDateString();
 	}
 
@@ -224,18 +248,19 @@
 		const items = errors
 			.map(
 				( e ) => `<li>
-					<div class="rh-err-meta">${ e.count > 1 ? `<b>${ e.count }×</b> ` : '' }on <code>${ esc( e.page ) }</code></div>
+					<div class="rh-err-meta">${ e.count > 1 ? `<b>${ e.count }×</b> ` : '' }${ /* translators: %s: the page the error happened on. */ sprintf( esc( __( 'on %s', 'rehearsals' ) ), `<code>${ esc( e.page ) }</code>` ) }</div>
 					<pre class="rh-err-msg">${ esc( e.msg ) }</pre>
 					${ e.source ? `<pre class="rh-err-src">${ esc( e.source ) }</pre>` : '' }
 				</li>`
 			)
 			.join( '' );
 		return `<div class="rh-errors">
-			<div class="rh-errors-head"><strong>Console errors (${ errors.length })</strong>
-			<button type="button" class="button button-small" ${ copyAttr }>Copy errors</button></div>
+			<div class="rh-errors-head"><strong>${ /* translators: %d: number of distinct console errors. */ esc( sprintf( __( 'Console errors (%d)', 'rehearsals' ), errors.length ) ) }</strong>
+			<button type="button" class="button button-small" ${ copyAttr }>${ esc( __( 'Copy errors', 'rehearsals' ) ) }</button></div>
 			<ol>${ items }</ol></div>`;
 	}
 
+	// A bug report for pasting into an issue, read by people on other sites, so it stays in English like the GitHub block.
 	function errorsText( errors, run, title ) {
 		const head = [
 			`Rehearsal: console errors in "${ title }"`,
@@ -279,12 +304,12 @@
 			document.execCommand( 'copy' );
 			ta.remove();
 		}
-		flash( button, 'Copied' );
+		flash( button, __( 'Copied', 'rehearsals' ) );
 	}
 
 	// The clipboard gets a pending promise right away: Chrome refuses a write that waits on a request first.
 	async function copyFetched( url, button ) {
-		flash( button, 'Copying…', 0 );
+		flash( button, __( 'Copying…', 'rehearsals' ), 0 );
 		const text = fetch( url, { credentials: 'same-origin' } ).then( ( res ) => {
 			if ( ! res.ok ) throw new Error( `HTTP ${ res.status }` );
 			return res.text();
@@ -295,28 +320,34 @@
 			} else {
 				await navigator.clipboard.writeText( await text );
 			}
-			flash( button, 'Copied' );
+			flash( button, __( 'Copied', 'rehearsals' ) );
 		} catch ( e ) {
-			flash( button, 'Copy failed' );
+			flash( button, __( 'Copy failed', 'rehearsals' ) );
 		}
 	}
 
 	function logHtml( log, cleared ) {
 		if ( ! log || ! log.length ) {
-			return `<p class="rh-muted">${ cleared ? 'Not part of the latest run. Its last log is under Recent runs.' : 'No steps run yet.' }</p>`;
+			return `<p class="rh-muted">${ esc( cleared ? __( 'Not part of the latest run. Its last log is under Recent runs.', 'rehearsals' ) : __( 'No steps run yet.', 'rehearsals' ) ) }</p>`;
 		}
 		return `<ol class="rh-log">${ log
 			.map(
 				( l ) =>
 					`<li class="${ l.ok ? 'ok' : 'no' }"><span aria-hidden="true">${ l.ok ? '✓' : '✗' }</span><span class="msg">${ esc(
 						l.msg
-					) }${ ( l.pages || [] ).map( metricsHtml ).join( '' ) }</span><span class="ms">${ l.ms ? l.ms + ' ms' : '' }</span></li>`
+					) }${ ( l.pages || [] ).map( metricsHtml ).join( '' ) }</span><span class="ms">${ l.ms ? /* translators: %d: duration in milliseconds. */ esc( sprintf( __( '%d ms', 'rehearsals' ), l.ms ) ) : '' }</span></li>`
 			)
 			.join( '' ) }</ol>`;
 	}
 
-	const ms = ( v ) => ( v < 1000 ? `${ v } ms` : `${ ( v / 1000 ).toFixed( 1 ) } s` );
-	const mb = ( v ) => ( v < 1048576 ? `${ Math.round( v / 1024 ) } KB` : `${ ( v / 1048576 ).toFixed( 1 ) } MB` );
+	const ms = ( v ) =>
+		v < 1000
+			? /* translators: %s: duration in milliseconds. */ sprintf( __( '%s ms', 'rehearsals' ), v )
+			: /* translators: %s: duration in seconds, such as 1.5. */ sprintf( __( '%s s', 'rehearsals' ), ( v / 1000 ).toFixed( 1 ) );
+	const mb = ( v ) =>
+		v < 1048576
+			? /* translators: %s: size in kilobytes. */ sprintf( __( '%s KB', 'rehearsals' ), Math.round( v / 1024 ) )
+			: /* translators: %s: size in megabytes, such as 1.5. */ sprintf( __( '%s MB', 'rehearsals' ), ( v / 1048576 ).toFixed( 1 ) );
 	const FORMAT = { ttfb: ms, fcp: ms, lcp: ms, cls: ( v ) => v.toFixed( 2 ), requests: String, weight: mb, js: mb };
 
 	// One line per page load, with anything over budget called out.
@@ -324,23 +355,26 @@
 		const warn = p.warn || [];
 		const item = ( k, text ) => {
 			if ( p[ k ] === null || p[ k ] === undefined ) return '';
-			const over = warn.includes( k ) ? ` <small>(budget ${ FORMAT[ k ]( p.limits[ k ] ) })</small>` : '';
-			return `<span class="rh-metric ${ over ? 'warn' : '' }">${ text }${ over }</span>`;
+			const over = warn.includes( k ) ? ` <small>${ /* translators: %s: the budget limit, such as 2.5 s. */ esc( sprintf( __( '(budget %s)', 'rehearsals' ), FORMAT[ k ]( p.limits[ k ] ) ) ) }</small>` : '';
+			return `<span class="rh-metric ${ over ? 'warn' : '' }">${ esc( text ) }${ over }</span>`;
 		};
 		const items = [
 			item( 'ttfb', `TTFB ${ ms( p.ttfb ) }` ),
 			item( 'fcp', `FCP ${ ms( p.fcp ) }` ),
 			item( 'lcp', `LCP ${ ms( p.lcp ) }` ),
 			item( 'cls', `CLS ${ p.cls.toFixed( 2 ) }` ),
-			item( 'requests', `${ p.requests } requests` ),
+			/* translators: %d: number of requests. */
+			item( 'requests', sprintf( _n( '%d request', '%d requests', p.requests, 'rehearsals' ), p.requests ) ),
 			item( 'weight', `${ mb( p.weight ) }` ),
 			item( 'js', `JS ${ mb( p.js ) }` ),
 		].filter( Boolean );
-		const extra = [ `${ mb( p.downloaded ) } downloaded` ];
-		if ( p.unmeasured ) extra.push( `${ p.unmeasured } other-site files not sized` );
+		/* translators: %s: size, such as 1.2 MB. */
+		const extra = [ sprintf( __( '%s downloaded', 'rehearsals' ), mb( p.downloaded ) ) ];
+		/* translators: %d: number of files from other sites. */
+		if ( p.unmeasured ) extra.push( sprintf( _n( '%d other-site file not sized', '%d other-site files not sized', p.unmeasured, 'rehearsals' ), p.unmeasured ) );
 		return `<span class="rh-metrics ${ warn.length ? 'warn' : '' }">
-			<span class="rh-metrics-url">${ esc( p.url.split( '?' )[ 0 ] ) }${ warn.length ? ' · <b>Over budget</b>' : '' }</span>
-			${ items.join( '<span aria-hidden="true"> · </span>' ) }<span class="rh-muted"> · ${ extra.join( ' · ' ) }</span></span>`;
+			<span class="rh-metrics-url">${ esc( p.url.split( '?' )[ 0 ] ) }${ warn.length ? ` · <b>${ esc( __( 'Over budget', 'rehearsals' ) ) }</b>` : '' }</span>
+			${ items.join( '<span aria-hidden="true"> · </span>' ) }<span class="rh-muted"> · ${ esc( extra.join( ' · ' ) ) }</span></span>`;
 	}
 
 	// How many page loads in a run went over the rehearsal's budget.
@@ -350,7 +384,9 @@
 
 	function slowPill( run ) {
 		const n = slowPages( run );
-		return n ? ` <span class="rh-pill stale" title="Page loads over this rehearsal's budget">${ n } over budget</span>` : '';
+		return n
+			? ` <span class="rh-pill stale" title="${ esc( __( "Page loads over this rehearsal's budget", 'rehearsals' ) ) }">${ /* translators: %d: number of page loads over budget. */ esc( sprintf( __( '%d over budget', 'rehearsals' ), n ) ) }</span>`
+			: '';
 	}
 
 	// ---------- Estimates and progress ----------
@@ -360,7 +396,13 @@
 
 	const duration = ( ms ) => {
 		const s = Math.max( 0, Math.round( ms / 1000 ) );
-		return s < 60 ? `${ s } s` : `${ Math.floor( s / 60 ) } min${ s % 60 ? ` ${ s % 60 } s` : '' }`;
+		if ( s < 60 ) {
+			/* translators: %d: number of seconds. */
+			return sprintf( __( '%d s', 'rehearsals' ), s );
+		}
+		return s % 60
+			? /* translators: 1: number of minutes, 2: number of seconds. */ sprintf( __( '%1$d min %2$d s', 'rehearsals' ), Math.floor( s / 60 ), s % 60 )
+			: /* translators: %d: number of minutes. */ sprintf( __( '%d min', 'rehearsals' ), Math.floor( s / 60 ) );
 	};
 
 	// Average time per step in a run's log, leaving out the 0 ms notes ({{run}}, role, warnings) and failed
@@ -436,14 +478,25 @@
 		let tone = 'running';
 		if ( p.done ) {
 			const results = p.picked.map( ( r ) => ( r.live ? 'unsaved' : r.lastRun && r.lastRun.status ) );
-			const count = ( status, word ) => {
-				const k = results.filter( ( x ) => x === status ).length;
-				return k ? `${ k } ${ word }` : '';
-			};
-			const tally = [ count( 'pass', 'passed' ), count( 'fail', 'failed' ), count( 'queued', 'need Playwright' ), count( 'unsaved', 'not saved' ) ].filter( Boolean );
+			const count = ( status ) => results.filter( ( x ) => x === status ).length;
+			const tally = [
+				/* translators: %d: number of rehearsals that passed. */
+				count( 'pass' ) ? sprintf( _n( '%d passed', '%d passed', count( 'pass' ), 'rehearsals' ), count( 'pass' ) ) : '',
+				/* translators: %d: number of rehearsals that failed. */
+				count( 'fail' ) ? sprintf( _n( '%d failed', '%d failed', count( 'fail' ), 'rehearsals' ), count( 'fail' ) ) : '',
+				/* translators: %d: number of rehearsals waiting for the Playwright runner. */
+				count( 'queued' ) ? sprintf( _n( '%d needs Playwright', '%d need Playwright', count( 'queued' ), 'rehearsals' ), count( 'queued' ) ) : '',
+				/* translators: %d: number of runs that could not be saved. */
+				count( 'unsaved' ) ? sprintf( _n( '%d not saved', '%d not saved', count( 'unsaved' ), 'rehearsals' ), count( 'unsaved' ) ) : '',
+			].filter( Boolean );
 			tone = results.some( ( x ) => x === 'fail' || x === 'unsaved' ) ? 'fail' : 'pass';
 			fraction = 1;
-			text = `Ran ${ n } rehearsal${ n === 1 ? '' : 's' } in ${ duration( elapsed ) } (expected about ${ duration( total ) }${ guessed ? ', partly guessed' : '' }) · ${ tally.join( ' · ' ) }`;
+			const ran = guessed
+				? /* translators: 1: number of rehearsals, 2: how long they took, 3: how long they were expected to take. */
+				  _n( 'Ran %1$d rehearsal in %2$s (expected about %3$s, partly guessed)', 'Ran %1$d rehearsals in %2$s (expected about %3$s, partly guessed)', n, 'rehearsals' )
+				: /* translators: 1: number of rehearsals, 2: how long they took, 3: how long they were expected to take. */
+				  _n( 'Ran %1$d rehearsal in %2$s (expected about %3$s)', 'Ran %1$d rehearsals in %2$s (expected about %3$s)', n, 'rehearsals' );
+			text = [ sprintf( ran, n, duration( elapsed ), duration( total ) ), ...tally ].join( ' · ' );
 		} else {
 			const r = p.picked[ p.index ];
 			const steps = r.recipe.needs === 'playwright' ? 0 : r.recipe.steps.length;
@@ -452,11 +505,24 @@
 			const over = inCurrent > p.est[ p.index ].ms;
 			const left = Math.max( 0, p.est[ p.index ].ms - inCurrent ) + later;
 			fraction = ( p.index + ( steps ? p.step / steps : 0 ) ) / n;
+			let pace;
+			if ( over ) {
+				pace = later
+					? /* translators: %s: time left for the rehearsals after this one. */ sprintf( __( 'taking longer than last time; about %s for the rest', 'rehearsals' ), duration( later ) )
+					: __( 'taking longer than last time', 'rehearsals' );
+			} else {
+				pace = guessed
+					? /* translators: %s: time left. */ sprintf( __( 'about %s left (partly guessed: some have never run)', 'rehearsals' ), duration( left ) )
+					: /* translators: %s: time left. */ sprintf( __( 'about %s left', 'rehearsals' ), duration( left ) );
+			}
 			text = [
-				`Running ${ p.index + 1 } of ${ n }: ${ r.title }`,
-				steps ? `step ${ Math.max( 1, p.step ) } of ${ steps }` : '',
-				`${ duration( elapsed ) } so far`,
-				over ? `taking longer than last time${ later ? `; about ${ duration( later ) } for the rest` : '' }` : `about ${ duration( left ) } left${ guessed ? ' (partly guessed: some have never run)' : '' }`,
+				/* translators: 1: number of the rehearsal running, 2: how many rehearsals are running, 3: rehearsal title. */
+				sprintf( __( 'Running %1$d of %2$d: %3$s', 'rehearsals' ), p.index + 1, n, r.title ),
+				/* translators: 1: number of the step running, 2: how many steps the rehearsal has. */
+				steps ? sprintf( __( 'step %1$d of %2$d', 'rehearsals' ), Math.max( 1, p.step ), steps ) : '',
+				/* translators: %s: time since the run started. */
+				sprintf( __( '%s so far', 'rehearsals' ), duration( elapsed ) ),
+				pace,
 			]
 				.filter( Boolean )
 				.join( ' · ' );
@@ -476,40 +542,53 @@
 			.map( ( r, i ) => {
 				const [ cls, label ] = statusOf( r );
 				const log = r.live ? r.live.log : ! r.logCleared && r.lastRun && r.lastRun.log;
+				const lastRun =
+					r.lastRun && r.lastRun.viewport === 'mobile'
+						? /* translators: 1: how long ago, such as 5 min ago, 2: user login. */ __( 'last run %1$s by %2$s (mobile)', 'rehearsals' )
+						: /* translators: 1: how long ago, such as 5 min ago, 2: user login. */ __( 'last run %1$s by %2$s', 'rehearsals' );
 				const meta = [
-					`rehearsal <code>${ short( r.hash ) }</code>`,
-					`${ r.recipe.steps.length } step${ r.recipe.steps.length === 1 ? '' : 's' }`,
-					r.recipe.covers ? `covers ${ r.recipe.covers.map( esc ).join( ', ' ) }` : 'manual only',
-					r.recipe.requires ? `requires ${ r.recipe.requires.map( esc ).join( ', ' ) }` : '',
-					r.recipe.theme ? `theme ${ esc( [].concat( r.recipe.theme ).join( ' or ' ) ) }` : '',
-					r.recipe.role ? `as ${ esc( r.recipe.role ) }` : '',
-					r.recipe.viewport ? `${ esc( r.recipe.viewport ) } only` : '',
-					r.source ? 'installed from a link' : '',
-					r.lastRun ? `last run ${ ago( r.lastRun.date ) } by ${ esc( r.lastRun.by ) }${ r.lastRun.viewport === 'mobile' ? ' (mobile)' : '' }` : '',
-					r.lastRun && ! estimate( r ).guessed ? `takes about ${ duration( estimate( r ).ms ) }` : '',
+					/* translators: %s: short rehearsal ID. */
+					sprintf( esc( __( 'rehearsal %s', 'rehearsals' ) ), `<code>${ short( r.hash ) }</code>` ),
+					/* translators: %d: number of steps. */
+					esc( sprintf( _n( '%d step', '%d steps', r.recipe.steps.length, 'rehearsals' ), r.recipe.steps.length ) ),
+					r.recipe.covers
+						? /* translators: %s: comma-separated list of labels the rehearsal covers. */ sprintf( esc( __( 'covers %s', 'rehearsals' ) ), r.recipe.covers.map( esc ).join( ', ' ) )
+						: esc( __( 'manual only', 'rehearsals' ) ),
+					/* translators: %s: comma-separated list of required plugin slugs. */
+					r.recipe.requires ? sprintf( esc( __( 'requires %s', 'rehearsals' ) ), r.recipe.requires.map( esc ).join( ', ' ) ) : '',
+					/* translators: %s: required theme slug, or several joined with "or". */
+					r.recipe.theme ? sprintf( esc( __( 'theme %s', 'rehearsals' ) ), esc( [].concat( r.recipe.theme ).join( ' or ' ) ) ) : '',
+					/* translators: %s: role slug, such as editor. */
+					r.recipe.role ? sprintf( esc( __( 'as %s', 'rehearsals' ) ), esc( r.recipe.role ) ) : '',
+					/* translators: %s: screen size, desktop or mobile. */
+					r.recipe.viewport ? sprintf( esc( __( '%s only', 'rehearsals' ) ), esc( r.recipe.viewport ) ) : '',
+					r.source ? esc( __( 'installed from a link', 'rehearsals' ) ) : '',
+					r.lastRun ? sprintf( esc( lastRun ), esc( ago( r.lastRun.date ) ), esc( r.lastRun.by ) ) : '',
+					/* translators: %s: expected duration, such as 1 min 5 s. */
+					r.lastRun && ! estimate( r ).guessed ? esc( sprintf( __( 'takes about %s', 'rehearsals' ), duration( estimate( r ).ms ) ) ) : '',
 				].filter( Boolean );
 				const error = r.live && r.live.error ? `<p class="rh-error">${ esc( r.live.error ) }</p>` : '';
 				return `
 				<tr class="${ blocked( r ) ? 'rh-blocked' : '' }">
 					<th scope="row" class="check-column"><input type="checkbox" data-i="${ i }" ${ r.checked && ! blocked( r ) ? 'checked' : '' } ${
 						state.running || blocked( r ) ? 'disabled' : ''
-					} aria-label="Include ${ esc( r.title ) }"></th>
+					} aria-label="${ /* translators: %s: rehearsal title. */ esc( sprintf( __( 'Include %s', 'rehearsals' ), r.title ) ) }"></th>
 					<td>
 						<strong><button type="button" class="button-link rh-title" data-open="${ i }">${ esc( r.title ) }</button></strong>
 						<div class="rh-meta">${ meta.join( ' · ' ) }</div>
 					</td>
-					<td><span class="rh-pill ${ cls }">${ label }</span>${ r.recipe.budgets ? slowPill( r.live || r.lastRun ) : '' }${ needsPill( r ) }${ newerPill( r ) }</td>
+					<td><span class="rh-pill ${ cls }">${ esc( label ) }</span>${ r.recipe.budgets ? slowPill( r.live || r.lastRun ) : '' }${ needsPill( r ) }${ newerPill( r ) }</td>
 					<td class="rh-row-actions"><button type="button" class="button button-small" data-run-row="${ i }" ${
 						state.running || blocked( r ) ? 'disabled' : ''
-					} aria-label="Run ${ esc( r.title ) }">Run</button>
+					} aria-label="${ /* translators: %s: rehearsal title. */ esc( sprintf( __( 'Run %s', 'rehearsals' ), r.title ) ) }">${ esc( __( 'Run', 'rehearsals' ) ) }</button>
 					<button type="button" class="button-link" data-toggle="${ i }" aria-expanded="${ r.open }">${
-						r.open ? 'Hide log' : 'Log'
+						esc( r.open ? __( 'Hide log', 'rehearsals' ) : __( 'Log', 'rehearsals' ) )
 					}</button></td>
 				</tr>
 				<tr class="rh-detail" ${ r.open ? '' : 'hidden' }><td></td><td colspan="3">${ error }${ logHtml( log, r.logCleared && r.lastRun ) }${ errorsHtml(
 					r.live ? r.live.errors : ! r.logCleared && r.lastRun && r.lastRun.errors,
 					`data-copy-recipe="${ i }"`
-				) }${ r.lastRun ? `<button type="button" class="button-link" data-runs-for="${ r.id }">See all runs of this rehearsal</button>` : '' }</td></tr>`;
+				) }${ r.lastRun ? `<button type="button" class="button-link" data-runs-for="${ r.id }">${ esc( __( 'See all runs of this rehearsal', 'rehearsals' ) ) }</button>` : '' }</td></tr>`;
 			} )
 			.join( '' );
 		document.getElementById( 'rh-recipes' ).innerHTML = `
@@ -517,10 +596,10 @@
 				<thead><tr>
 					<td class="check-column"><input type="checkbox" data-all ${ all ? 'checked' : '' } ${
 						state.running ? 'disabled' : ''
-					} aria-label="Select all rehearsals"></td>
-					<th>Rehearsal</th><th>Last result</th><th></th>
+					} aria-label="${ esc( __( 'Select all rehearsals', 'rehearsals' ) ) }"></td>
+					<th>${ esc( __( 'Rehearsal', 'rehearsals' ) ) }</th><th>${ esc( __( 'Last result', 'rehearsals' ) ) }</th><th></th>
 				</tr></thead>
-				<tbody>${ rows || '<tr><td></td><td colspan="3" class="rh-muted">No rehearsals yet. Add one, or install one from a link.</td></tr>' }</tbody>
+				<tbody>${ rows || `<tr><td></td><td colspan="3" class="rh-muted">${ esc( __( 'No rehearsals yet. Add one, or install one from a link.', 'rehearsals' ) ) }</td></tr>` }</tbody>
 			</table>`;
 		renderSummary();
 	}
@@ -529,15 +608,20 @@
 		const selected = state.recipes.filter( ( r ) => r.checked && ! blocked( r ) );
 		runButton.disabled = state.running || ! selected.length;
 		const expected = totalEstimate( selected );
-		runButton.textContent = state.running ? 'Running…' : `Run ${ selected.length } selected`;
+		runButton.textContent = state.running
+			? __( 'Running…', 'rehearsals' )
+			: /* translators: %d: number of selected rehearsals. */ sprintf( _n( 'Run %d selected', 'Run %d selected', selected.length, 'rehearsals' ), selected.length );
 		// While running, the progress bar has the time left.
 		const estimate = document.getElementById( 'rh-estimate' );
-		estimate.textContent = ! state.running && selected.length ? `About ${ duration( expected.ms ) }` : '';
-		estimate.title = expected.guessed ? 'From the last runs; rehearsals that have never run are guessed.' : 'From the last runs.';
+		/* translators: %s: expected duration, such as 1 min 5 s. */
+		estimate.textContent = ! state.running && selected.length ? sprintf( __( 'About %s', 'rehearsals' ), duration( expected.ms ) ) : '';
+		estimate.title = expected.guessed ? __( 'From the last runs; rehearsals that have never run are guessed.', 'rehearsals' ) : __( 'From the last runs.', 'rehearsals' );
 		renderFrameTools();
 		const failed = failedRecipes().length;
 		runFailedButton.disabled = state.running || ! failed;
-		runFailedButton.textContent = failed ? `Run ${ failed } failed` : 'Run failed';
+		runFailedButton.textContent = failed
+			? /* translators: %d: number of failed rehearsals. */ sprintf( _n( 'Run %d failed', 'Run %d failed', failed, 'rehearsals' ), failed )
+			: __( 'Run failed', 'rehearsals' );
 	}
 
 	const hasFilters = () => Object.values( state.filters ).some( Boolean );
@@ -545,9 +629,9 @@
 	function renderFilterOptions() {
 		const option = ( value, label, current ) => `<option value="${ value }" ${ String( current ) === String( value ) ? 'selected' : '' }>${ esc( label ) }</option>`;
 		document.getElementById( 'rh-f-recipe' ).innerHTML =
-			option( '', 'All recipes', state.filters.recipe ) + state.recipes.map( ( r ) => option( r.id, r.title, state.filters.recipe ) ).join( '' );
+			option( '', __( 'All recipes', 'rehearsals' ), state.filters.recipe ) + state.recipes.map( ( r ) => option( r.id, r.title, state.filters.recipe ) ).join( '' );
 		document.getElementById( 'rh-f-user' ).innerHTML =
-			option( '', 'Anyone', state.filters.user ) + state.runUsers.map( ( u ) => option( u.id, u.name, state.filters.user ) ).join( '' );
+			option( '', __( 'Anyone', 'rehearsals' ), state.filters.user ) + state.runUsers.map( ( u ) => option( u.id, u.name, state.filters.user ) ).join( '' );
 		document.getElementById( 'rh-f-status' ).value = state.filters.status;
 		document.getElementById( 'rh-f-search' ).value = state.filters.search;
 		document.getElementById( 'rh-f-clear' ).hidden = ! hasFilters();
@@ -569,7 +653,7 @@
 			state.runPages = res.pages;
 			state.runPage = page;
 		} catch ( e ) {
-			state.runsError = e.message || 'Could not load runs.';
+			state.runsError = e.message || __( 'Could not load runs.', 'rehearsals' );
 		}
 		renderFilterOptions();
 		renderHistory();
@@ -582,7 +666,12 @@
 
 	function renderHistory() {
 		const el = document.getElementById( 'rh-history' );
-		document.getElementById( 'rh-f-count' ).textContent = `${ state.runTotal } run${ state.runTotal === 1 ? '' : 's' }${ hasFilters() ? ' match' : '' }`;
+		document.getElementById( 'rh-f-count' ).textContent = sprintf(
+			hasFilters()
+				? /* translators: %d: number of runs that match the filters. */ _n( '%d run match', '%d runs match', state.runTotal, 'rehearsals' )
+				: /* translators: %d: number of runs. */ _n( '%d run', '%d runs', state.runTotal, 'rehearsals' ),
+			state.runTotal
+		);
 		document.getElementById( 'rh-more' ).hidden = state.runPage >= state.runPages;
 		if ( state.runsError ) {
 			el.innerHTML = `<p class="rh-error">${ esc( state.runsError ) }</p>`;
@@ -590,26 +679,26 @@
 			return;
 		}
 		if ( ! state.runs.length ) {
-			el.innerHTML = `<p class="rh-muted">${ hasFilters() ? 'No runs match these filters.' : 'Runs appear here once they are saved.' }</p>`;
+			el.innerHTML = `<p class="rh-muted">${ esc( hasFilters() ? __( 'No runs match these filters.', 'rehearsals' ) : __( 'Runs appear here once they are saved.', 'rehearsals' ) ) }</p>`;
 			return;
 		}
 		el.innerHTML = `
 			<table class="widefat striped rh-history">
-				<thead><tr><th>When</th><th>Rehearsal</th><th>Result</th><th>Rehearsal ID</th><th>Build</th><th>By</th></tr></thead>
+				<thead><tr><th>${ esc( __( 'When', 'rehearsals' ) ) }</th><th>${ esc( __( 'Rehearsal', 'rehearsals' ) ) }</th><th>${ esc( __( 'Result', 'rehearsals' ) ) }</th><th>${ esc( __( 'Rehearsal ID', 'rehearsals' ) ) }</th><th>${ esc( __( 'Build', 'rehearsals' ) ) }</th><th>${ esc( __( 'By', 'rehearsals' ) ) }</th></tr></thead>
 				<tbody>${ state.runs
 					.map( ( run ) => {
 						const [ cls, label ] = pillFor( run.status );
 						const current = state.recipes.find( ( r ) => r.id === run.recipeId );
-						const stale = current && current.hash !== run.hash ? ' <span class="rh-pill stale">older version</span>' : '';
+						const stale = current && current.hash !== run.hash ? ` <span class="rh-pill stale">${ esc( __( 'older version', 'rehearsals' ) ) }</span>` : '';
 						return `<tr>
-							<td title="${ esc( run.date ) }">${ ago( run.date ) }</td>
+							<td title="${ esc( run.date ) }">${ esc( ago( run.date ) ) }</td>
 							<td><details><summary>${ esc( run.title ) } <span class="rh-muted">#${ run.id }</span></summary>${ logHtml(
 								run.log
-							) }${ errorsHtml( run.errors, `data-copy-run="${ run.id }"` ) }${ run.snapshots ?`<p class="rh-muted">${ run.snapshots } HTML snapshot(s) stored with this run.</p>` : '' }</details></td>
-							<td><span class="rh-pill ${ cls }">${ label }</span>${ slowPill( run ) }${ run.runner === 'playwright' ? ' <span class="rh-muted">in Playwright</span>' : '' }${ run.viewport === 'mobile' ? ' <span class="rh-muted">mobile</span>' : '' }</td>
+							) }${ errorsHtml( run.errors, `data-copy-run="${ run.id }"` ) }${ run.snapshots ? `<p class="rh-muted">${ /* translators: %d: number of HTML snapshots. */ esc( sprintf( _n( '%d HTML snapshot stored with this run.', '%d HTML snapshots stored with this run.', run.snapshots, 'rehearsals' ), run.snapshots ) ) }</p>` : '' }</details></td>
+							<td><span class="rh-pill ${ cls }">${ esc( label ) }</span>${ slowPill( run ) }${ run.runner === 'playwright' ? ` <span class="rh-muted">${ esc( __( 'in Playwright', 'rehearsals' ) ) }</span>` : '' }${ run.viewport === 'mobile' ? ` <span class="rh-muted">${ esc( __( 'mobile', 'rehearsals' ) ) }</span>` : '' }</td>
 							<td><code>${ short( run.hash ) }</code>${ stale }</td>
 							<td>${ esc( run.build ) }</td>
-							<td><button type="button" class="button-link" data-filter-user="${ run.byId }" title="Show only runs by ${ esc( run.by ) }">${ esc( run.by ) }</button>${ run.role ? ` <span class="rh-muted">as ${ esc( run.role ) }</span>` : '' }${ run.ref ? ` <span class="rh-muted">ref ${ esc( run.ref ) }</span>` : '' }</td>
+							<td><button type="button" class="button-link" data-filter-user="${ run.byId }" title="${ /* translators: %s: user login. */ esc( sprintf( __( 'Show only runs by %s', 'rehearsals' ), run.by ) ) }">${ esc( run.by ) }</button>${ run.role ? ` <span class="rh-muted">${ /* translators: %s: role slug, such as editor. */ esc( sprintf( __( 'as %s', 'rehearsals' ), run.role ) ) }</span>` : '' }${ run.ref ? ` <span class="rh-muted">${ /* translators: %s: the label the run was started with. */ esc( sprintf( __( 'ref %s', 'rehearsals' ), run.ref ) ) }</span>` : '' }</td>
 						</tr>`;
 					} )
 					.join( '' ) }</tbody>
@@ -637,7 +726,7 @@
 	function showModal( title, body, footer ) {
 		modal.innerHTML = `<div class="rh-modal-inner">
 			<header><h2 id="rh-modal-title">${ esc( title ) }</h2>
-				<button type="button" class="rh-modal-close" data-close aria-label="Close">×</button></header>
+				<button type="button" class="rh-modal-close" data-close aria-label="${ esc( __( 'Close', 'rehearsals' ) ) }">×</button></header>
 			<div class="rh-modal-body">${ body }
 				<p class="rh-modal-note" id="rh-modal-note" hidden></p>
 				<p class="rh-error" id="rh-modal-error" role="alert" hidden></p></div>
@@ -651,20 +740,22 @@
 		el.hidden = ! text;
 	}
 
+	// The help keeps its markup in the translated strings (bold labels and code samples); the lists come from the server.
 	function stepsHelp() {
-		return `<details class="rh-help"><summary>What can a rehearsal do?</summary>
-			<p><b>Steps:</b> ${ data.steps.map( ( s ) => `<code>${ s }</code>` ).join( ' ' ) }</p>
-			<p><b><code>expect</code> matchers</b> (plus optional <code>"not": true</code>): ${ data.matchers.map( ( m ) => `<code>${ m }</code>` ).join( ' ' ) }</p>
-			<p><b><code>dialog</code></b> answers the next alert, confirm or prompt: <code>{ "dialog": "accept", "value": "prompt text" }</code> or <code>{ "dialog": "dismiss" }</code>. Put it before the step that opens the dialog. Without one, dialogs are dismissed.</p>
-			<p><b>Any step</b> takes <code>"optional": true</code> and <code>"timeout"</code> in ms. <code>{{run}}</code> becomes a value unique to each run.</p>
-			<p><b><code>"requires"</code></b> lists plugin slugs (folder names, or text domains) that must be active, such as <code>["jetpack"]</code>, or <code>["jetpack or jetpack-premium-analytics"]</code> when any one will do. Without them the rehearsal is shown but can't run.</p>
-			<p><b><code>"theme"</code></b> names the theme that must be active (or one of a list), such as <code>"twentytwentyfour"</code>; a child of it counts.</p>
-			<p><b><code>"role"</code></b> runs the rehearsal as a test user with that role, such as <code>"editor"</code> (created as <code>rehearsal-editor</code> the first time). Without it, it runs as you.</p>
-			<p><b><code>"viewport"</code></b> pins the rehearsal to <code>"desktop"</code> or <code>"mobile"</code>, for steps that only work at one size (a button that moves into a menu on phones, say). It then runs at that size whatever the Desktop / Mobile switch says.</p>
-			<p><b><code>"format"</code></b> is the rehearsal format it was written in, added when it's saved. A rehearsal from a newer version of Rehearsal than this site's still runs, with a warning.</p>
-			<p><b>Page loads</b> are measured only when the rehearsal sets <code>"budgets"</code>, e.g. <code>{ "lcp": 2500, "weight": 2097152 }</code>. Pages over a limit get a notice, never a failure. Keys: ${ data.budgetKeys.map( ( k ) => `<code>${ k }</code>` ).join( ' ' ) }; times in ms, CLS unitless, sizes in compressed bytes.</p>
-			<p><b>Selectors:</b> CSS, <code>text=…</code>, <code>role=…</code>, <code>:has-text("…")</code>, and <code>a &gt;&gt; b</code> to look inside <code>a</code> or inside an iframe.</p>
-			<p><b><code>"covers"</code></b> labels what the rehearsal exercises, such as <code>["packages/forms"]</code> or <code>["src/checkout/*"]</code>. A CI job can match them against what a change touched and run only the rehearsals that apply. Leave it out for a rehearsal you only run by hand.</p>
+		const codes = ( list ) => list.map( ( s ) => `<code>${ esc( s ) }</code>` ).join( ' ' );
+		return `<details class="rh-help"><summary>${ esc( __( 'What can a rehearsal do?', 'rehearsals' ) ) }</summary>
+			<p>${ /* translators: %s: list of step names, each in <code>. */ sprintf( __( '<b>Steps:</b> %s', 'rehearsals' ), codes( data.steps ) ) }</p>
+			<p>${ /* translators: %s: list of matcher names, each in <code>. */ sprintf( __( '<b><code>expect</code> matchers</b> (plus optional <code>"not": true</code>): %s', 'rehearsals' ), codes( data.matchers ) ) }</p>
+			<p>${ __( '<b><code>dialog</code></b> answers the next alert, confirm or prompt: <code>{ "dialog": "accept", "value": "prompt text" }</code> or <code>{ "dialog": "dismiss" }</code>. Put it before the step that opens the dialog. Without one, dialogs are dismissed.', 'rehearsals' ) }</p>
+			<p>${ __( '<b>Any step</b> takes <code>"optional": true</code> and <code>"timeout"</code> in ms. <code>{{run}}</code> becomes a value unique to each run.', 'rehearsals' ) }</p>
+			<p>${ __( '<b><code>"requires"</code></b> lists plugin slugs (folder names, or text domains) that must be active, such as <code>["jetpack"]</code>, or <code>["jetpack or jetpack-premium-analytics"]</code> when any one will do. Without them the rehearsal is shown but can\'t run.', 'rehearsals' ) }</p>
+			<p>${ __( '<b><code>"theme"</code></b> names the theme that must be active (or one of a list), such as <code>"twentytwentyfour"</code>; a child of it counts.', 'rehearsals' ) }</p>
+			<p>${ __( '<b><code>"role"</code></b> runs the rehearsal as a test user with that role, such as <code>"editor"</code> (created as <code>rehearsal-editor</code> the first time). Without it, it runs as you.', 'rehearsals' ) }</p>
+			<p>${ __( '<b><code>"viewport"</code></b> pins the rehearsal to <code>"desktop"</code> or <code>"mobile"</code>, for steps that only work at one size (a button that moves into a menu on phones, say). It then runs at that size whatever the Desktop / Mobile switch says.', 'rehearsals' ) }</p>
+			<p>${ __( '<b><code>"format"</code></b> is the rehearsal format it was written in, added when it\'s saved. A rehearsal from a newer version of Rehearsal than this site\'s still runs, with a warning.', 'rehearsals' ) }</p>
+			<p>${ /* translators: %s: list of budget keys, each in <code>. */ sprintf( __( '<b>Page loads</b> are measured only when the rehearsal sets <code>"budgets"</code>, e.g. <code>{ "lcp": 2500, "weight": 2097152 }</code>. Pages over a limit get a notice, never a failure. Keys: %s; times in ms, CLS unitless, sizes in compressed bytes.', 'rehearsals' ), codes( data.budgetKeys ) ) }</p>
+			<p>${ __( '<b>Selectors:</b> CSS, <code>text=…</code>, <code>role=…</code>, <code>:has-text("…")</code>, and <code>a &gt;&gt; b</code> to look inside <code>a</code> or inside an iframe.', 'rehearsals' ) }</p>
+			<p>${ __( '<b><code>"covers"</code></b> labels what the rehearsal exercises, such as <code>["packages/forms"]</code> or <code>["src/checkout/*"]</code>. A CI job can match them against what a change touched and run only the rehearsals that apply. Leave it out for a rehearsal you only run by hand.', 'rehearsals' ) }</p>
 		</details>`;
 	}
 
@@ -672,46 +763,46 @@
 		const [ cls, label ] = r ? statusOf( r ) : [ '', '' ];
 		const info = r
 			? `<dl class="rh-m-info">
-				<dt>Rehearsal ID</dt><dd><code>${ short( r.hash ) }</code></dd>
-				<dt>Format</dt><dd>${ r.format }${ r.newer ? ` <span class="rh-error">${ esc( newerText( r.format ) ) }</span>` : '' }</dd>
-				${ r.recipe.requires ? `<dt>Requires plugins</dt><dd>${ esc( r.recipe.requires.join( ', ' ) ) }</dd>` : '' }
-				${ r.recipe.theme ? `<dt>Requires theme</dt><dd>${ esc( [].concat( r.recipe.theme ).join( ' or ' ) ) }</dd>` : '' }
-				${ r.recipe.role ? `<dt>Runs as</dt><dd>${ esc( r.recipe.role ) } (test user rehearsal-${ esc( r.recipe.role ) })</dd>` : '' }
-				${ r.recipe.viewport ? `<dt>Screen size</dt><dd>${ esc( r.recipe.viewport ) } only, whatever the Desktop / Mobile switch says</dd>` : '' }
-				${ blocked( r ) ? `<dt>Can't run here</dt><dd>${ needsPill( r ) }</dd>` : '' }
-				<dt>Last result</dt><dd><span class="rh-pill ${ cls }">${ label }</span>
-					<button type="button" class="button-link" data-runs-for="${ r.id }">See all runs</button></dd>
-				${ r.source ? `<dt>Installed from</dt><dd><a href="${ esc( r.source ) }" target="_blank" rel="noopener">${ esc( r.source ) }</a></dd>` : '' }
+				<dt>${ esc( __( 'Rehearsal ID', 'rehearsals' ) ) }</dt><dd><code>${ short( r.hash ) }</code></dd>
+				<dt>${ esc( __( 'Format', 'rehearsals' ) ) }</dt><dd>${ r.format }${ r.newer ? ` <span class="rh-error">${ esc( newerText( r.format ) ) }</span>` : '' }</dd>
+				${ r.recipe.requires ? `<dt>${ esc( __( 'Requires plugins', 'rehearsals' ) ) }</dt><dd>${ esc( r.recipe.requires.join( ', ' ) ) }</dd>` : '' }
+				${ r.recipe.theme ? `<dt>${ esc( __( 'Requires theme', 'rehearsals' ) ) }</dt><dd>${ esc( [].concat( r.recipe.theme ).join( ' or ' ) ) }</dd>` : '' }
+				${ r.recipe.role ? `<dt>${ esc( __( 'Runs as', 'rehearsals' ) ) }</dt><dd>${ /* translators: 1: role slug, such as editor, 2: the test user's login, such as rehearsal-editor. */ esc( sprintf( __( '%1$s (test user %2$s)', 'rehearsals' ), r.recipe.role, `rehearsal-${ r.recipe.role }` ) ) }</dd>` : '' }
+				${ r.recipe.viewport ? `<dt>${ esc( __( 'Screen size', 'rehearsals' ) ) }</dt><dd>${ /* translators: %s: screen size, desktop or mobile. */ esc( sprintf( __( '%s only, whatever the Desktop / Mobile switch says', 'rehearsals' ), r.recipe.viewport ) ) }</dd>` : '' }
+				${ blocked( r ) ? `<dt>${ esc( __( "Can't run here", 'rehearsals' ) ) }</dt><dd>${ needsPill( r ) }</dd>` : '' }
+				<dt>${ esc( __( 'Last result', 'rehearsals' ) ) }</dt><dd><span class="rh-pill ${ cls }">${ esc( label ) }</span>
+					<button type="button" class="button-link" data-runs-for="${ r.id }">${ esc( __( 'See all runs', 'rehearsals' ) ) }</button></dd>
+				${ r.source ? `<dt>${ esc( __( 'Installed from', 'rehearsals' ) ) }</dt><dd><a href="${ esc( r.source ) }" target="_blank" rel="noopener">${ esc( r.source ) }</a></dd>` : '' }
 			</dl>
 			<div class="rh-share">
-				<label for="rh-m-share">Share</label>
+				<label for="rh-m-share">${ esc( __( 'Share', 'rehearsals' ) ) }</label>
 				<div class="rh-share-link"><input id="rh-m-share" type="text" readonly value="${ esc( r.shareUrl ) }">
-					<button type="button" class="button" data-copy-share>Copy link</button></div>
-				<div class="rh-share-as"><span>Copy as:</span>
-					<button type="button" class="button-link" data-copy-gh title="Summary and folded JSON, for a PR description">GitHub</button>
+					<button type="button" class="button" data-copy-share>${ esc( __( 'Copy link', 'rehearsals' ) ) }</button></div>
+				<div class="rh-share-as"><span>${ esc( __( 'Copy as:', 'rehearsals' ) ) }</span>
+					<button type="button" class="button-link" data-copy-gh title="${ esc( __( 'Summary and folded JSON, for a PR description', 'rehearsals' ) ) }">${ esc( __( 'GitHub', 'rehearsals' ) ) }</button>
 					<span aria-hidden="true">·</span>
-					<button type="button" class="button-link" data-copy-raw title="The steps as JSON. For scripts, the link plus &amp;format=json returns the same.">JSON</button>
+					<button type="button" class="button-link" data-copy-raw title="${ esc( __( 'The steps as JSON. For scripts, the link plus &format=json returns the same.', 'rehearsals' ) ) }">${ esc( __( 'JSON', 'rehearsals' ) ) }</button>
 					<span aria-hidden="true">·</span>
-					<button type="button" class="button-link" data-copy-pw title="A standalone .spec.ts file">Playwright test</button>
+					<button type="button" class="button-link" data-copy-pw title="${ esc( __( 'A standalone .spec.ts file', 'rehearsals' ) ) }">${ esc( __( 'Playwright test', 'rehearsals' ) ) }</button>
 					<span aria-hidden="true">·</span>
-					<button type="button" class="button-link" data-copy-run-url title="Opening it runs this rehearsal straight away. Add &amp;ref=<label> to find the run again.">Run link</button>
+					<button type="button" class="button-link" data-copy-run-url title="${ esc( __( 'Opening it runs this rehearsal straight away. Add &ref=<label> to find the run again.', 'rehearsals' ) ) }">${ esc( __( 'Run link', 'rehearsals' ) ) }</button>
 				</div>
-				<p class="rh-muted">Anyone with the link can view and install this rehearsal. Copies use the saved version.</p>
+				<p class="rh-muted">${ esc( __( 'Anyone with the link can view and install this rehearsal. Copies use the saved version.', 'rehearsals' ) ) }</p>
 			</div>`
 			: '';
 		showModal(
-			r ? r.title : 'New rehearsal',
+			r ? r.title : __( 'New rehearsal', 'rehearsals' ),
 			`${ info }
-			<label class="rh-field" for="rh-m-title">Title</label>
-			<input id="rh-m-title" type="text" class="widefat" value="${ esc( r ? r.title : '' ) }" placeholder="What this checks, e.g. Forms: responses list loads">
-			<label class="rh-field" for="rh-m-json">Steps (JSON)</label>
+			<label class="rh-field" for="rh-m-title">${ esc( __( 'Title', 'rehearsals' ) ) }</label>
+			<input id="rh-m-title" type="text" class="widefat" value="${ esc( r ? r.title : '' ) }" placeholder="${ esc( __( 'What this checks, e.g. Forms: responses list loads', 'rehearsals' ) ) }">
+			<label class="rh-field" for="rh-m-json">${ esc( __( 'Steps (JSON)', 'rehearsals' ) ) }</label>
 			<textarea id="rh-m-json" rows="16" spellcheck="false">${ esc( JSON.stringify( r ? r.recipe : RECIPE_TEMPLATE, null, 2 ) ) }</textarea>
 			${ stepsHelp() }`,
-			`${ r ? '<button type="button" class="button-link button-link-delete" data-delete>Delete rehearsal</button>' : '' }
+			`${ r ? `<button type="button" class="button-link button-link-delete" data-delete>${ esc( __( 'Delete rehearsal', 'rehearsals' ) ) }</button>` : '' }
 			<span class="rh-spacer"></span>
-			<button type="button" class="button" data-close>Cancel</button>
-			${ r ? `<button type="button" class="button" data-run-one ${ state.running || blocked( r ) ? 'disabled' : '' }>Save and run</button>` : '' }
-			<button type="button" class="button button-primary" data-save>Save</button>`
+			<button type="button" class="button" data-close>${ esc( __( 'Cancel', 'rehearsals' ) ) }</button>
+			${ r ? `<button type="button" class="button" data-run-one ${ state.running || blocked( r ) ? 'disabled' : '' }>${ esc( __( 'Save and run', 'rehearsals' ) ) }</button>` : '' }
+			<button type="button" class="button button-primary" data-save>${ esc( __( 'Save', 'rehearsals' ) ) }</button>`
 		);
 		modal.dataset.recipe = r ? r.id : '';
 	}
@@ -755,7 +846,8 @@
 		try {
 			recipe = JSON.parse( modal.querySelector( '#rh-m-json' ).value );
 		} catch ( e ) {
-			modalMessage( '#rh-modal-error', `The steps are not valid JSON: ${ e.message }` );
+			/* translators: %s: the JSON parser's error message. */
+			modalMessage( '#rh-modal-error', sprintf( __( 'The steps are not valid JSON: %s', 'rehearsals' ), e.message ) );
 			return null;
 		}
 		const id = modal.dataset.recipe;
@@ -767,22 +859,22 @@
 			} );
 			return upsertRecipe( saved );
 		} catch ( e ) {
-			modalMessage( '#rh-modal-error', e.message || 'Could not save the rehearsal.' );
+			modalMessage( '#rh-modal-error', e.message || __( 'Could not save the rehearsal.', 'rehearsals' ) );
 			return null;
 		}
 	}
 
 	function openInstall( url ) {
 		showModal(
-			'Install a rehearsal from a link',
-			`<label class="rh-field" for="rh-m-url">Rehearsal link</label>
+			__( 'Install a rehearsal from a link', 'rehearsals' ),
+			`<label class="rh-field" for="rh-m-url">${ esc( __( 'Rehearsal link', 'rehearsals' ) ) }</label>
 			<input id="rh-m-url" type="url" class="widefat" value="${ esc( url || '' ) }" placeholder="https://some-site.jurassic.ninja/?rehearsal=…">
-			<p class="rh-muted">Paste a share link from any site running Rehearsal. You'll see the rehearsal before anything is saved.</p>
+			<p class="rh-muted">${ esc( __( "Paste a share link from any site running Rehearsal. You'll see the rehearsal before anything is saved.", 'rehearsals' ) ) }</p>
 			<div id="rh-m-preview"></div>`,
 			`<span class="rh-spacer"></span>
-			<button type="button" class="button" data-close>Cancel</button>
-			<button type="button" class="button" data-preview>Preview</button>
-			<button type="button" class="button button-primary" data-do-install disabled>Install</button>`
+			<button type="button" class="button" data-close>${ esc( __( 'Cancel', 'rehearsals' ) ) }</button>
+			<button type="button" class="button" data-preview>${ esc( __( 'Preview', 'rehearsals' ) ) }</button>
+			<button type="button" class="button button-primary" data-do-install disabled>${ esc( __( 'Install', 'rehearsals' ) ) }</button>`
 		);
 		modal.dataset.recipe = '';
 		if ( url ) previewInstall();
@@ -790,40 +882,41 @@
 
 	// The selected rehearsals as one Playwright file, with the steps to run it from a terminal or CI.
 	async function openPlaywright() {
-		const close = '<span class="rh-spacer"></span><button type="button" class="button" data-close>Close</button>';
+		const close = `<span class="rh-spacer"></span><button type="button" class="button" data-close>${ esc( __( 'Close', 'rehearsals' ) ) }</button>`;
 		const picked = state.recipes.filter( ( r ) => r.checked );
 		if ( ! picked.length ) {
-			showModal( 'Run in Playwright', '<p>Select the rehearsals to export with the checkboxes in the list, then try again.</p>', close );
+			showModal( __( 'Run in Playwright', 'rehearsals' ), `<p>${ esc( __( 'Select the rehearsals to export with the checkboxes in the list, then try again.', 'rehearsals' ) ) }</p>`, close );
 			return;
 		}
-		showModal( 'Run in Playwright', '<p class="rh-muted">Preparing the test file…</p>', close );
+		showModal( __( 'Run in Playwright', 'rehearsals' ), `<p class="rh-muted">${ esc( __( 'Preparing the test file…', 'rehearsals' ) ) }</p>`, close );
 		let url;
 		try {
 			url = ( await apiFetch( { path: '/rehearsal/v1/bundle', method: 'POST', data: { ids: picked.map( ( r ) => r.id ) } } ) ).url;
 		} catch ( e ) {
-			modalMessage( '#rh-modal-error', e.message || 'Could not prepare the test file.' );
+			modalMessage( '#rh-modal-error', e.message || __( 'Could not prepare the test file.', 'rehearsals' ) );
 			return;
 		}
 		const site = data.homeUrl;
 		const roles = [ ...new Set( picked.map( ( r ) => r.recipe.role ).filter( ( role ) => role && role !== 'administrator' ) ) ];
 		const env = ( role ) => 'STORAGE_STATE_' + role.toUpperCase().replace( /-/g, '_' );
-		const cmd = ( text ) => `<div class="rh-cmd"><code>${ esc( text ) }</code><button type="button" class="button button-small" data-copy-cmd>Copy</button></div>`;
+		const cmd = ( text ) => `<div class="rh-cmd"><code>${ esc( text ) }</code><button type="button" class="button button-small" data-copy-cmd>${ esc( __( 'Copy', 'rehearsals' ) ) }</button></div>`;
 		const run = [ 'STORAGE_STATE=auth.json', ...roles.map( ( role ) => `${ env( role ) }=auth-${ role }.json` ), 'npx playwright test rehearsals.spec.ts' ].join( ' ' );
 		const roleLogins = roles
-			.map( ( role ) => `<p class="rh-muted">Some rehearsals run as <b>${ esc( role ) }</b>, so save a session for a user with that role too:</p>${ cmd( `npx playwright open --save-storage=auth-${ role }.json ${ site }wp-login.php` ) }` )
+			.map( ( role ) => `<p class="rh-muted">${ /* translators: %s: role slug, such as editor. */ sprintf( esc( __( 'Some rehearsals run as %s, so save a session for a user with that role too:', 'rehearsals' ) ), `<b>${ esc( role ) }</b>` ) }</p>${ cmd( `npx playwright open --save-storage=auth-${ role }.json ${ site }wp-login.php` ) }` )
 			.join( '' );
 		showModal(
-			`Run ${ picked.length } rehearsal${ picked.length === 1 ? '' : 's' } in Playwright`,
-			`<p>The selected rehearsals as one Playwright test file, to run from your computer or CI.</p>
+			/* translators: %d: number of rehearsals. */
+			sprintf( _n( 'Run %d rehearsal in Playwright', 'Run %d rehearsals in Playwright', picked.length, 'rehearsals' ), picked.length ),
+			`<p>${ esc( __( 'The selected rehearsals as one Playwright test file, to run from your computer or CI.', 'rehearsals' ) ) }</p>
 			<ol class="rh-steps">
-				<li><b>Get the tests.</b> <a class="button button-primary" href="${ esc( url ) }&amp;download=1">Download rehearsals.spec.ts</a>
-					<span class="rh-muted">or fetch them, for example in CI:</span>${ cmd( `curl -o rehearsals.spec.ts "${ url }"` ) }</li>
-				<li><b>Install Playwright</b>, once, in the same folder:${ cmd( 'npm i -D @playwright/test && npx playwright install chromium' ) }</li>
-				<li><b>Save a logged-in session</b>, once: log in as an administrator in the browser that opens, then close it.${ cmd( `npx playwright open --save-storage=auth.json ${ site }wp-login.php` ) }${ roleLogins }</li>
-				<li><b>Run them.</b>${ cmd( run ) }
-					<p class="rh-muted">Add <code>--headed</code> to watch them, <code>BASE_URL=https://another-site/</code> to test another site, and see the results with <code>npx playwright show-report</code>.</p></li>
+				<li><b>${ esc( __( 'Get the tests.', 'rehearsals' ) ) }</b> <a class="button button-primary" href="${ esc( url ) }&amp;download=1">${ /* translators: %s: file name. */ esc( sprintf( __( 'Download %s', 'rehearsals' ), 'rehearsals.spec.ts' ) ) }</a>
+					<span class="rh-muted">${ esc( __( 'or fetch them, for example in CI:', 'rehearsals' ) ) }</span>${ cmd( `curl -o rehearsals.spec.ts "${ url }"` ) }</li>
+				<li>${ __( '<b>Install Playwright</b>, once, in the same folder:', 'rehearsals' ) }${ cmd( 'npm i -D @playwright/test && npx playwright install chromium' ) }</li>
+				<li>${ __( '<b>Save a logged-in session</b>, once: log in as an administrator in the browser that opens, then close it.', 'rehearsals' ) }${ cmd( `npx playwright open --save-storage=auth.json ${ site }wp-login.php` ) }${ roleLogins }</li>
+				<li><b>${ esc( __( 'Run them.', 'rehearsals' ) ) }</b>${ cmd( run ) }
+					<p class="rh-muted">${ __( 'Add <code>--headed</code> to watch them, <code>BASE_URL=https://another-site/</code> to test another site, and see the results with <code>npx playwright show-report</code>.', 'rehearsals' ) }</p></li>
 			</ol>
-			<p class="rh-muted">The link returns exactly these rehearsals while this site exists. Rehearsals that change the site change it in Playwright too.</p>`,
+			<p class="rh-muted">${ esc( __( 'The link returns exactly these rehearsals while this site exists. Rehearsals that change the site change it in Playwright too.', 'rehearsals' ) ) }</p>`,
 			close
 		);
 	}
@@ -839,7 +932,7 @@
 		const box = modal.querySelector( '#rh-m-preview' );
 		const button = modal.querySelector( '[data-do-install]' );
 		button.disabled = true;
-		box.innerHTML = '<p class="rh-muted">Fetching the rehearsal…</p>';
+		box.innerHTML = `<p class="rh-muted">${ esc( __( 'Fetching the rehearsal…', 'rehearsals' ) ) }</p>`;
 		const url = modal.querySelector( '#rh-m-url' ).value.trim();
 		try {
 			const p = await apiFetch( {
@@ -849,28 +942,42 @@
 			} );
 			if ( mine !== previewRequest ) return; // A later preview replaced this one.
 			previewed = { url, id: p.id };
+			const missing = ( m ) => {
+				if ( m.kind === 'role' ) {
+					/* translators: %s: role slug, such as editor. */
+					return sprintf( __( 'the "%s" role', 'rehearsals' ), m.name );
+				}
+				if ( m.kind === 'theme' ) {
+					return m.state === 'inactive'
+						? /* translators: %s: theme name. */ sprintf( __( 'theme %s (not active)', 'rehearsals' ), m.name )
+						: /* translators: %s: theme name. */ sprintf( __( 'theme %s (not installed)', 'rehearsals' ), m.name );
+				}
+				return m.state === 'inactive'
+					? /* translators: %s: plugin name. */ sprintf( __( '%s (not active)', 'rehearsals' ), m.name )
+					: /* translators: %s: plugin name. */ sprintf( __( '%s (not installed)', 'rehearsals' ), m.name );
+			};
 			box.innerHTML = `<dl class="rh-m-info">
-					<dt>Title</dt><dd>${ esc( p.title ) }</dd>
-					<dt>Rehearsal ID</dt><dd><code>${ short( p.id ) }</code></dd>
-					<dt>Steps</dt><dd>${ p.recipe.steps.length }</dd>
-					<dt>Runs in CI when</dt><dd>${ p.recipe.covers ? esc( p.recipe.covers.join( ', ' ) ) + ' changes' : 'never: manual only' }</dd>
-					<dt>Shared from</dt><dd>${ esc( p.site ) } (${ esc( p.build ) })</dd>
-					<dt>Requires plugins</dt><dd>${ p.recipe.requires ? esc( p.recipe.requires.join( ', ' ) ) : 'None' }</dd>
-					<dt>Requires theme</dt><dd>${ p.recipe.theme ? esc( [].concat( p.recipe.theme ).join( ' or ' ) ) : 'Any' }</dd>
-					<dt>Runs as</dt><dd>${ p.recipe.role ? esc( p.recipe.role ) : 'you (the logged-in admin)' }</dd>
-					<dt>Screen size</dt><dd>${ p.recipe.viewport ? `${ esc( p.recipe.viewport ) } only` : 'Any' }</dd>
-					<dt>Format</dt><dd>${ p.format }${ p.shared_by ? ` (shared by a site running Rehearsal ${ esc( p.shared_by ) })` : '' }</dd>
+					<dt>${ esc( __( 'Title', 'rehearsals' ) ) }</dt><dd>${ esc( p.title ) }</dd>
+					<dt>${ esc( __( 'Rehearsal ID', 'rehearsals' ) ) }</dt><dd><code>${ short( p.id ) }</code></dd>
+					<dt>${ esc( __( 'Steps', 'rehearsals' ) ) }</dt><dd>${ p.recipe.steps.length }</dd>
+					<dt>${ esc( __( 'Runs in CI when', 'rehearsals' ) ) }</dt><dd>${ esc( p.recipe.covers ? /* translators: %s: comma-separated list of labels the rehearsal covers. */ sprintf( __( '%s changes', 'rehearsals' ), p.recipe.covers.join( ', ' ) ) : __( 'never: manual only', 'rehearsals' ) ) }</dd>
+					<dt>${ esc( __( 'Shared from', 'rehearsals' ) ) }</dt><dd>${ /* translators: 1: site URL, 2: what the site runs: WordPress, theme and plugin versions. */ esc( sprintf( __( '%1$s (%2$s)', 'rehearsals' ), p.site, p.build ) ) }</dd>
+					<dt>${ esc( __( 'Requires plugins', 'rehearsals' ) ) }</dt><dd>${ esc( p.recipe.requires ? p.recipe.requires.join( ', ' ) : __( 'None', 'rehearsals' ) ) }</dd>
+					<dt>${ esc( __( 'Requires theme', 'rehearsals' ) ) }</dt><dd>${ esc( p.recipe.theme ? [].concat( p.recipe.theme ).join( ' or ' ) : __( 'Any', 'rehearsals' ) ) }</dd>
+					<dt>${ esc( __( 'Runs as', 'rehearsals' ) ) }</dt><dd>${ esc( p.recipe.role ? p.recipe.role : __( 'you (the logged-in admin)', 'rehearsals' ) ) }</dd>
+					<dt>${ esc( __( 'Screen size', 'rehearsals' ) ) }</dt><dd>${ esc( p.recipe.viewport ? /* translators: %s: screen size, desktop or mobile. */ sprintf( __( '%s only', 'rehearsals' ), p.recipe.viewport ) : __( 'Any', 'rehearsals' ) ) }</dd>
+					<dt>${ esc( __( 'Format', 'rehearsals' ) ) }</dt><dd>${ esc( p.shared_by ? /* translators: 1: rehearsal format number, 2: Rehearsal plugin version. */ sprintf( __( '%1$d (shared by a site running Rehearsal %2$s)', 'rehearsals' ), p.format, p.shared_by ) : p.format ) }</dd>
 				</dl>
-				${ p.missing && p.missing.length ? `<p class="rh-error">This site is missing what it needs: ${ esc( p.missing.map( ( m ) => ( m.kind === 'role' ? `the "${ m.name }" role` : `${ m.kind === 'theme' ? 'theme ' : '' }${ m.name } (${ m.state === 'inactive' ? 'not active' : 'not installed' })` ) ).join( ', ' ) ) }. You can install it, but it won't run until they are active.</p>` : '' }
+				${ p.missing && p.missing.length ? `<p class="rh-error">${ /* translators: %s: comma-separated list of what the rehearsal needs, such as Jetpack (not active). */ esc( sprintf( __( "This site is missing what it needs: %s. You can install it, but it won't run until they are active.", 'rehearsals' ), p.missing.map( missing ).join( ', ' ) ) ) }</p>` : '' }
 				${ p.newer ? `<p class="rh-error">${ esc( newerText( p.format ) ) }</p>` : '' }
-				${ p.updates ? '<p class="rh-modal-note">You installed this link before. Installing again replaces your copy with this version.</p>' : '' }
-				<details><summary>Steps</summary><pre class="rh-m-pre">${ esc( JSON.stringify( p.recipe, null, 2 ) ) }</pre></details>`;
+				${ p.updates ? `<p class="rh-modal-note">${ esc( __( 'You installed this link before. Installing again replaces your copy with this version.', 'rehearsals' ) ) }</p>` : '' }
+				<details><summary>${ esc( __( 'Steps', 'rehearsals' ) ) }</summary><pre class="rh-m-pre">${ esc( JSON.stringify( p.recipe, null, 2 ) ) }</pre></details>`;
 			button.disabled = false;
-			button.textContent = p.updates ? 'Update my copy' : 'Install';
+			button.textContent = p.updates ? __( 'Update my copy', 'rehearsals' ) : __( 'Install', 'rehearsals' );
 		} catch ( e ) {
 			if ( mine !== previewRequest ) return;
 			box.innerHTML = '';
-			modalMessage( '#rh-modal-error', e.message || 'Could not fetch that link.' );
+			modalMessage( '#rh-modal-error', e.message || __( 'Could not fetch that link.', 'rehearsals' ) );
 		}
 	}
 
@@ -885,9 +992,9 @@
 			} );
 			const r = upsertRecipe( saved );
 			openRecipe( r );
-			modalMessage( '#rh-modal-note', saved.updated ? 'Updated your copy to this version.' : 'Installed. Run it from here or from the list.' );
+			modalMessage( '#rh-modal-note', saved.updated ? __( 'Updated your copy to this version.', 'rehearsals' ) : __( 'Installed. Run it from here or from the list.', 'rehearsals' ) );
 		} catch ( e ) {
-			modalMessage( '#rh-modal-error', e.message || 'Could not install the rehearsal.' );
+			modalMessage( '#rh-modal-error', e.message || __( 'Could not install the rehearsal.', 'rehearsals' ) );
 		}
 	}
 
@@ -918,17 +1025,18 @@
 		if ( t.matches( '[data-runs-for]' ) ) showRunsFor( { recipe: t.dataset.runsFor } );
 		if ( t.matches( '[data-preview]' ) ) previewInstall();
 		if ( t.matches( '[data-do-install]' ) ) {
-			const done = busy( 'Installing…' );
+			const done = busy( __( 'Installing…', 'rehearsals' ) );
 			await doInstall();
 			done();
 		}
 		if ( t.matches( '[data-save]' ) ) {
-			const done = busy( 'Saving…' );
+			const done = busy( __( 'Saving…', 'rehearsals' ) );
 			const r = await saveFromModal();
 			done();
 			if ( r ) {
 				openRecipe( r );
-				modalMessage( '#rh-modal-note', `Saved. Rehearsal ID is now ${ short( r.hash ) }.` );
+				/* translators: %s: short rehearsal ID. */
+				modalMessage( '#rh-modal-note', sprintf( __( 'Saved. Rehearsal ID is now %s.', 'rehearsals' ), short( r.hash ) ) );
 			}
 		}
 		if ( t.matches( '[data-run-one]' ) ) {
@@ -941,10 +1049,10 @@
 		if ( t.matches( '[data-delete]' ) ) {
 			if ( ! t.dataset.armed ) {
 				t.dataset.armed = '1';
-				t.textContent = 'Click again to delete';
+				t.textContent = __( 'Click again to delete', 'rehearsals' );
 				return;
 			}
-			const done = busy( 'Deleting…' );
+			const done = busy( __( 'Deleting…', 'rehearsals' ) );
 			try {
 				await apiFetch( { path: `/rehearsal/v1/rehearsals/${ id }`, method: 'DELETE' } );
 				state.recipes = state.recipes.filter( ( r ) => r.id !== id );
@@ -953,7 +1061,7 @@
 				modal.close();
 			} catch ( err ) {
 				done();
-				modalMessage( '#rh-modal-error', err.message || 'Could not delete the rehearsal.' );
+				modalMessage( '#rh-modal-error', err.message || __( 'Could not delete the rehearsal.', 'rehearsals' ) );
 			}
 		}
 	} );
@@ -1027,7 +1135,7 @@
 	function onSiteDoc() {
 		const doc = frameDoc();
 		if ( ! doc ) {
-			throw new Error( 'The frame left this site, so the browser cannot read it. This rehearsal needs the Playwright runner.' );
+			throw new Error( __( 'The frame left this site, so the browser cannot read it. This rehearsal needs the Playwright runner.', 'rehearsals' ) );
 		}
 		return doc;
 	}
@@ -1107,13 +1215,17 @@
 
 	// What the page showed, for timeout messages.
 	function actual( name, els, el ) {
-		if ( name === 'toHaveCount' ) return `${ els.length } found`;
-		if ( name === 'toBeVisible' ) return els.length ? `${ els.length } found, none visible` : 'no match';
-		if ( ! el ) return 'no visible match';
+		/* translators: %d: number of matching elements. */
+		if ( name === 'toHaveCount' ) return sprintf( _n( '%d found', '%d found', els.length, 'rehearsals' ), els.length );
+		if ( name === 'toBeVisible' ) {
+			/* translators: %d: number of matching elements. */
+			return els.length ? sprintf( _n( '%d found, none visible', '%d found, none visible', els.length, 'rehearsals' ), els.length ) : __( 'no match', 'rehearsals' );
+		}
+		if ( ! el ) return __( 'no visible match', 'rehearsals' );
 		if ( name === 'toHaveText' || name === 'toContainText' ) return `“${ norm( el.innerText ).slice( 0, 120 ) }”`;
 		if ( name === 'toHaveValue' ) return `“${ el.value }”`;
-		if ( name === 'toBeChecked' ) return toggleTarget( el ).checked ? 'checked' : 'unchecked';
-		return isDisabled( el ) ? 'disabled' : 'enabled';
+		if ( name === 'toBeChecked' ) return toggleTarget( el ).checked ? __( 'checked', 'rehearsals' ) : __( 'unchecked', 'rehearsals' );
+		return isDisabled( el ) ? __( 'disabled', 'rehearsals' ) : __( 'enabled', 'rehearsals' );
 	}
 
 	function keyEvent( win, type, combo ) {
@@ -1196,8 +1308,12 @@
 			if ( ! document.hidden ) spent += now - last;
 			last = now;
 			if ( spent > timeout ) {
-				const err = new Error( `Timed out after ${ timeout / 1000 } s waiting for ${ label }` );
+				/* translators: 1: number of seconds, 2: what the step waited for, such as a selector. */
+				const err = new Error( sprintf( __( 'Timed out after %1$s s waiting for %2$s', 'rehearsals' ), timeout / 1000, label ) );
+				// Kept so a step can say more in one sentence (see click and expect).
 				err.timeout = true;
+				err.seconds = timeout / 1000;
+				err.label = label;
 				throw err;
 			}
 			await sleep( 100 );
@@ -1208,7 +1324,8 @@
 		return new Promise( ( resolve, reject ) => {
 			const timer = setTimeout( () => {
 				frame.onload = null;
-				reject( new Error( `Timed out after ${ timeout / 1000 } s loading ${ url }` ) );
+				/* translators: 1: number of seconds, 2: URL. */
+				reject( new Error( sprintf( __( 'Timed out after %1$s s loading %2$s', 'rehearsals' ), timeout / 1000, url ) ) );
 			}, timeout );
 			frame.onload = () => {
 				clearTimeout( timer );
@@ -1224,11 +1341,14 @@
 			? data.adminUrl + path.slice( '/wp-admin/'.length )
 			: data.homeUrl + path.replace( /^\//, '' );
 		if ( new URL( url ).origin !== window.location.origin ) {
-			throw new Error( `${ url } is on another domain than wp-admin. This rehearsal needs the Playwright runner.` );
+			/* translators: %s: URL. */
+			throw new Error( sprintf( __( '%s is on another domain than wp-admin. This rehearsal needs the Playwright runner.', 'rehearsals' ), url ) );
 		}
 		return url;
 	}
 
+	// What each step returns is its log line in the step vocabulary (goto, click, …), the same as the Playwright
+	// runner's, so it stays untranslated; the errors it throws are sentences for people, so they are translated.
 	async function exec( run, step, timeout ) {
 		if ( 'goto' in step ) {
 			const url = resolve( step.goto );
@@ -1240,10 +1360,10 @@
 			await load( url, timeout );
 			const doc = onSiteDoc();
 			if ( /\/wp-login\.php/.test( frame.contentWindow.location.pathname ) ) {
-				throw new Error( 'Redirected to the login screen. Are you still logged in?' );
+				throw new Error( __( 'Redirected to the login screen. Are you still logged in?', 'rehearsals' ) );
 			}
 			// When measuring, give LCP and layout shifts time to settle; a page that never finishes is measured as it is.
-			if ( run.pages ) await until( run, () => frame.contentWindow.__rehearsal?.metrics?.().final, 'page metrics', 4000 ).catch( () => {} );
+			if ( run.pages ) await until( run, () => frame.contentWindow.__rehearsal?.metrics?.().final, __( 'page metrics', 'rehearsals' ), 4000 ).catch( () => {} );
 			harvest( run );
 			return `goto ${ step.goto } (${ doc.title || 'untitled' })`;
 		}
@@ -1260,7 +1380,9 @@
 					const scope = step.in ? find( doc, step.in ) : doc.body;
 					return scope && norm( scope.innerText ).includes( want );
 				},
-				`text “${ step.expectText }”${ step.in ? ' in ' + step.in : '' }`,
+				step.in
+					? /* translators: 1: the text to find, 2: selector it should be in. */ sprintf( __( 'text “%1$s” in %2$s', 'rehearsals' ), step.expectText, step.in )
+					: /* translators: %s: the text to find. */ sprintf( __( 'text “%s”', 'rehearsals' ), step.expectText ),
 				timeout
 			);
 			return `expectText “${ step.expectText }”`;
@@ -1268,7 +1390,8 @@
 		if ( 'expectCount' in step ) {
 			const min = step.min ?? 1;
 			const count = () => findAll( onSiteDoc(), step.expectCount ).length;
-			await until( run, () => count() >= min, `at least ${ min } × ${ step.expectCount }`, timeout );
+			/* translators: 1: minimum number of matches, 2: selector. */
+			await until( run, () => count() >= min, sprintf( __( 'at least %1$d × %2$s', 'rehearsals' ), min, step.expectCount ), timeout );
 			return `expectCount ${ step.expectCount } ≥ ${ min } (found ${ count() })`;
 		}
 		if ( 'fill' in step ) {
@@ -1294,13 +1417,16 @@
 				step.click,
 				timeout
 			).catch( ( e ) => {
-				throw e.timeout && disabled ? new Error( `${ e.message } to be enabled (it stayed disabled)` ) : e;
+				throw e.timeout && disabled
+					? /* translators: 1: number of seconds, 2: selector. */ new Error( sprintf( __( 'Timed out after %1$s s waiting for %2$s to be enabled (it stayed disabled)', 'rehearsals' ), e.seconds, e.label ) )
+					: e;
 			} );
 			const link = el.closest( 'a[target="_blank"][href]' );
 			if ( link ) {
 				// A new tab would escape the runner, so load the link in the frame like Playwright following a popup.
 				if ( new URL( link.href ).origin !== window.location.origin ) {
-					throw new Error( `${ link.href } opens another site in a new tab. This rehearsal needs the Playwright runner.` );
+					/* translators: %s: URL. */
+					throw new Error( sprintf( __( '%s opens another site in a new tab. This rehearsal needs the Playwright runner.', 'rehearsals' ), link.href ) );
 				}
 				harvest( run );
 				document.getElementById( 'rh-frame-url' ).textContent = link.href;
@@ -1312,7 +1438,8 @@
 		}
 		if ( 'expect' in step ) {
 			const name = Object.keys( MATCHERS ).find( ( m ) => m in step );
-			if ( ! name ) throw new Error( `"expect" needs one of: ${ Object.keys( MATCHERS ).join( ', ' ) }` );
+			/* translators: %s: comma-separated list of matcher names. */
+			if ( ! name ) throw new Error( sprintf( __( '"expect" needs one of: %s', 'rehearsals' ), Object.keys( MATCHERS ).join( ', ' ) ) );
 			const test = MATCHERS[ name ]( step[ name ] );
 			const arg = typeof step[ name ] === 'boolean' ? '' : ` ${ JSON.stringify( step[ name ] ) }`;
 			const label = `expect ${ step.expect }${ step.not ? ' not' : '' } ${ name }${ arg }`;
@@ -1330,7 +1457,9 @@
 					timeout
 				);
 			} catch ( e ) {
-				throw e.timeout ? new Error( `${ e.message } (page showed: ${ seen })` ) : e;
+				throw e.timeout
+					? /* translators: 1: number of seconds, 2: what the step checked, 3: what the page showed instead. */ new Error( sprintf( __( 'Timed out after %1$s s waiting for %2$s (page showed: %3$s)', 'rehearsals' ), e.seconds, e.label, seen ) )
+					: e;
 			}
 			return label;
 		}
@@ -1338,18 +1467,28 @@
 			const want = 'check' in step;
 			const sel = want ? step.check : step.uncheck;
 			const el = toggleTarget( await until( run, () => find( onSiteDoc(), sel ), sel, timeout ) );
-			if ( ! el.matches( 'input[type=checkbox], input[type=radio]' ) ) throw new Error( `${ sel } is not a checkbox or radio button` );
-			if ( ! want && el.type === 'radio' ) throw new Error( `${ sel } is a radio button, which cannot be unchecked` );
+			/* translators: %s: selector. */
+			if ( ! el.matches( 'input[type=checkbox], input[type=radio]' ) ) throw new Error( sprintf( __( '%s is not a checkbox or radio button', 'rehearsals' ), sel ) );
+			/* translators: %s: selector. */
+			if ( ! want && el.type === 'radio' ) throw new Error( sprintf( __( '%s is a radio button, which cannot be unchecked', 'rehearsals' ), sel ) );
 			if ( el.checked !== want ) el.click();
-			if ( el.checked !== want ) throw new Error( `${ sel } is still ${ el.checked ? 'checked' : 'unchecked' } after clicking it` );
+			if ( el.checked !== want ) {
+				throw new Error(
+					el.checked
+						? /* translators: %s: selector. */ sprintf( __( '%s is still checked after clicking it', 'rehearsals' ), sel )
+						: /* translators: %s: selector. */ sprintf( __( '%s is still unchecked after clicking it', 'rehearsals' ), sel )
+				);
+			}
 			return `${ want ? 'check' : 'uncheck' } ${ sel }`;
 		}
 		if ( 'selectOption' in step ) {
 			const el = await until( run, () => find( onSiteDoc(), step.selectOption ), step.selectOption, timeout );
-			if ( el.tagName !== 'SELECT' ) throw new Error( `${ step.selectOption } is not a <select>` );
+			/* translators: %s: selector. */
+			if ( el.tagName !== 'SELECT' ) throw new Error( sprintf( __( '%s is not a <select>', 'rehearsals' ), step.selectOption ) );
 			const want = String( step.value );
 			const option = [ ...el.options ].find( ( o ) => o.value === want ) || [ ...el.options ].find( ( o ) => norm( o.text ) === norm( want ) );
-			if ( ! option ) throw new Error( `${ step.selectOption } has no option with value or label “${ want }”` );
+			/* translators: 1: selector, 2: the option value or label the step asked for. */
+			if ( ! option ) throw new Error( sprintf( __( '%1$s has no option with value or label “%2$s”', 'rehearsals' ), step.selectOption, want ) );
 			const win = el.ownerDocument.defaultView;
 			Object.getOwnPropertyDescriptor( win.HTMLSelectElement.prototype, 'value' ).set.call( el, option.value );
 			el.dispatchEvent( new win.Event( 'input', { bubbles: true } ) );
@@ -1380,14 +1519,19 @@
 		if ( 'expectNoConsoleErrors' in step ) {
 			harvest( run );
 			if ( ! frame.contentWindow.__rehearsal ) {
-				throw new Error( 'This page has no error recorder, so console errors cannot be checked (it needs wp_head or wp-admin, and an admin login).' );
+				throw new Error( __( 'This page has no error recorder, so console errors cannot be checked (it needs wp_head or wp-admin, and an admin login).', 'rehearsals' ) );
 			}
 			const ignore = ( ( step.expectNoConsoleErrors && step.expectNoConsoleErrors.ignore ) || [] ).map( ( p ) => new RegExp( p ) );
 			const errors = run.errors.filter( ( e ) => ! ignore.some( ( re ) => re.test( e.msg ) ) );
 			if ( errors.length ) {
 				run.consoleErrors = groupErrors( errors );
 				throw new Error(
-					`${ errors.length } console error${ errors.length === 1 ? '' : 's' } (${ run.consoleErrors.length } distinct), listed below.`
+					sprintf(
+						/* translators: 1: number of console errors, 2: number of distinct ones. */
+						_n( '%1$d console error (%2$d distinct), listed below.', '%1$d console errors (%2$d distinct), listed below.', errors.length, 'rehearsals' ),
+						errors.length,
+						run.consoleErrors.length
+					)
 				);
 			}
 			return 'expectNoConsoleErrors';
@@ -1403,9 +1547,10 @@
 			return `dialog: ${ step.dialog } the next one`;
 		}
 		if ( 'screenshot' in step ) {
-			throw new Error( 'The browser cannot take screenshots. Add "needs": "playwright" to this rehearsal.' );
+			throw new Error( __( 'The browser cannot take screenshots. Add "needs": "playwright" to this rehearsal.', 'rehearsals' ) );
 		}
-		throw new Error( `Unknown step: ${ Object.keys( step ).join( ', ' ) }` );
+		/* translators: %s: the step's keys. */
+		throw new Error( sprintf( __( 'Unknown step: %s', 'rehearsals' ), Object.keys( step ).join( ', ' ) ) );
 	}
 
 	function clearRoleCookie() {
@@ -1448,7 +1593,17 @@
 		const attachPages = ( entry ) => {
 			harvest( run );
 			run.dialogs.splice( 0 ).forEach( ( d ) => {
-				entry.msg += ` · ${ d.type } “${ d.message }” ${ d.action === 'accept' ? 'accepted' : 'dismissed' }${ d.answered ? '' : ' (no dialog step before it)' }`;
+				let note;
+				if ( d.action === 'accept' ) {
+					note = d.answered
+						? /* translators: 1: dialog type: alert, confirm or prompt, 2: the dialog's message. */ __( '%1$s “%2$s” accepted', 'rehearsals' )
+						: /* translators: 1: dialog type: alert, confirm or prompt, 2: the dialog's message. */ __( '%1$s “%2$s” accepted (no dialog step before it)', 'rehearsals' );
+				} else {
+					note = d.answered
+						? /* translators: 1: dialog type: alert, confirm or prompt, 2: the dialog's message. */ __( '%1$s “%2$s” dismissed', 'rehearsals' )
+						: /* translators: 1: dialog type: alert, confirm or prompt, 2: the dialog's message. */ __( '%1$s “%2$s” dismissed (no dialog step before it)', 'rehearsals' );
+				}
+				entry.msg += ' · ' + sprintf( note, d.type, d.message );
 			} );
 			if ( ! budget ) return entry;
 			if ( run.newPages.length ) entry.pages = run.newPages.splice( 0 );
@@ -1462,14 +1617,23 @@
 		renderRecipes();
 
 		let status = 'pass';
-		if ( newer ) run.log.push( { ok: true, msg: `Warning: ${ newerText( format ) }`, ms: 0 } );
+		/* translators: %s: the warning about a rehearsal from a newer version. */
+		if ( newer ) run.log.push( { ok: true, msg: sprintf( __( 'Warning: %s', 'rehearsals' ), newerText( format ) ), ms: 0 } );
 		if ( view === 'mobile' || recipe.viewport ) {
 			const size = VIEWPORTS[ view ];
-			const name = view === 'mobile' ? 'Mobile' : 'Desktop';
-			run.log.push( { ok: true, msg: `${ name } viewport: ${ size.width } × ${ size.height }${ recipe.viewport ? ` (this rehearsal is ${ view }-only)` : '' }`, ms: 0 } );
+			let line;
+			if ( view === 'mobile' ) {
+				line = recipe.viewport
+					? /* translators: 1: width in pixels, 2: height in pixels. */ __( 'Mobile viewport: %1$d × %2$d (this rehearsal is mobile-only)', 'rehearsals' )
+					: /* translators: 1: width in pixels, 2: height in pixels. */ __( 'Mobile viewport: %1$d × %2$d', 'rehearsals' );
+			} else {
+				/* translators: 1: width in pixels, 2: height in pixels. */
+				line = __( 'Desktop viewport: %1$d × %2$d (this rehearsal is desktop-only)', 'rehearsals' );
+			}
+			run.log.push( { ok: true, msg: sprintf( line, size.width, size.height ), ms: 0 } );
 		}
 		if ( recipe.needs === 'playwright' ) {
-			run.log.push( { ok: true, msg: 'Needs Playwright, so the browser did not run it. Saved as waiting for the Playwright runner.', ms: 0 } );
+			run.log.push( { ok: true, msg: __( 'Needs Playwright, so the browser did not run it. Saved as waiting for the Playwright runner.', 'rehearsals' ), ms: 0 } );
 			status = 'queued';
 		} else {
 			const timeout = recipe.timeout || DEFAULT_TIMEOUT;
@@ -1485,14 +1649,17 @@
 				try {
 					const user = await apiFetch( { path: '/rehearsal/v1/role-user', method: 'POST', data: { role } } );
 					document.cookie = `rehearsal_role=${ encodeURIComponent( role ) }; path=/; max-age=1800; SameSite=Strict${ window.location.protocol === 'https:' ? '; Secure' : '' }`;
-					run.log.push( { ok: true, msg: `Running as ${ user.login } (${ role })`, ms: 0 } );
+					/* translators: 1: the test user's login, 2: role slug. */
+					run.log.push( { ok: true, msg: sprintf( __( 'Running as %1$s (%2$s)', 'rehearsals' ), user.login, role ), ms: 0 } );
 				} catch ( e ) {
-					run.log.push( { ok: false, msg: `Could not prepare the ${ role } test user: ${ e.message }`, ms: 0 } );
+					/* translators: 1: role slug, 2: error message. */
+					run.log.push( { ok: false, msg: sprintf( __( 'Could not prepare the %1$s test user: %2$s', 'rehearsals' ), role, e.message ), ms: 0 } );
 					status = 'fail';
 				}
 			}
 			for ( const [ i, step ] of ( status === 'pass' ? steps : [] ).entries() ) {
-				document.getElementById( 'rh-frame-step' ).textContent = `${ title } · step ${ i + 1 }/${ steps.length }`;
+				/* translators: 1: rehearsal title, 2: number of the step running, 3: how many steps the rehearsal has. */
+				document.getElementById( 'rh-frame-step' ).textContent = sprintf( __( '%1$s · step %2$d/%3$d', 'rehearsals' ), title, i + 1, steps.length );
 				progressStep( i + 1 );
 				const t0 = performance.now();
 				try {
@@ -1501,11 +1668,13 @@
 				} catch ( e ) {
 					const ms = Math.round( performance.now() - t0 );
 					if ( step.optional ) {
-						run.log.push( attachPages( { ok: true, msg: `Skipped optional step ${ i + 1 }: ${ e.message }`, ms } ) );
+						/* translators: 1: step number, 2: why it failed. */
+						run.log.push( attachPages( { ok: true, msg: sprintf( __( 'Skipped optional step %1$d: %2$s', 'rehearsals' ), i + 1, e.message ), ms } ) );
 						renderRecipes();
 						continue;
 					}
-					run.log.push( attachPages( { ok: false, msg: `Step ${ i + 1 }: ${ e.message }`, ms } ) );
+					/* translators: 1: step number, 2: why it failed. */
+					run.log.push( attachPages( { ok: false, msg: sprintf( __( 'Step %1$d: %2$s', 'rehearsals' ), i + 1, e.message ), ms } ) );
 					status = 'fail';
 					break;
 				}
@@ -1540,7 +1709,12 @@
 				status: 'unsaved',
 				log: run.log,
 				errors: run.consoleErrors,
-				error: `The run ${ status === 'pass' ? 'passed' : 'finished' } but was not saved: ${ e.message || e.code }`,
+				error: sprintf(
+					status === 'pass'
+						? /* translators: %s: error message. */ __( 'The run passed but was not saved: %s', 'rehearsals' )
+						: /* translators: %s: error message. */ __( 'The run finished but was not saved: %s', 'rehearsals' ),
+					e.message || e.code
+				),
 			};
 		}
 		renderRecipes();
@@ -1569,13 +1743,14 @@
 					await runRecipe( r, ref );
 				} catch ( e ) {
 					// A bug in the runner must fail this rehearsal, not leave the page stuck on "Running…".
-					r.live = { status: 'unsaved', log: [], error: `The runner itself failed: ${ e.message }` };
+					/* translators: %s: error message. */
+					r.live = { status: 'unsaved', log: [], error: sprintf( __( 'The runner itself failed: %s', 'rehearsals' ), e.message ) };
 				}
 			}
 		} finally {
 			state.running = false;
 			clearCookies();
-			document.getElementById( 'rh-frame-step' ).textContent = 'Done';
+			document.getElementById( 'rh-frame-step' ).textContent = __( 'Done', 'rehearsals' );
 			state.runViewport = null;
 			fitFrame();
 			finishProgress();
@@ -1602,18 +1777,48 @@
 		const picked = ids.map( ( id ) => state.recipes.find( ( r ) => r.id === id ) );
 		const unusable = ids.filter( ( id, i ) => ! picked[ i ] || blocked( picked[ i ] ) );
 		if ( unusable.length ) {
-			return report( 'error', esc( `Run link: rehearsal ${ unusable.join( ', ' ) } is deleted or can't run on this site, so nothing ran.` ) );
+			return report(
+				'error',
+				esc(
+					sprintf(
+						/* translators: %s: comma-separated list of rehearsal IDs. */
+						_n( "Run link: rehearsal %s is deleted or can't run on this site, so nothing ran.", "Run link: rehearsals %s are deleted or can't run on this site, so nothing ran.", unusable.length, 'rehearsals' ),
+						unusable.join( ', ' )
+					)
+				)
+			);
 		}
-		const count = `${ picked.length } rehearsal${ picked.length === 1 ? '' : 's' }`;
-		report( 'running', esc( `Run link: running ${ count }${ ref ? ` (ref ${ ref })` : '' }…` ) );
+		const n = picked.length;
+		report(
+			'running',
+			esc(
+				ref
+					? /* translators: 1: number of rehearsals, 2: the label the runs are saved with. */ sprintf( _n( 'Run link: running %1$d rehearsal (ref %2$s)…', 'Run link: running %1$d rehearsals (ref %2$s)…', n, 'rehearsals' ), n, ref )
+					: /* translators: %d: number of rehearsals. */ sprintf( _n( 'Run link: running %d rehearsal…', 'Run link: running %d rehearsals…', n, 'rehearsals' ), n )
+			)
+		);
 		await runRecipes( picked, ref );
 		const results = picked.map( ( r ) => ( r.live ? 'error' : r.lastRun.status ) );
 		const status = [ 'error', 'fail', 'queued' ].find( ( s ) => results.includes( s ) ) || 'pass';
 		const runIds = picked.filter( ( r ) => ! r.live ).map( ( r ) => r.lastRun.id );
-		const outcome = { pass: 'all passed', fail: 'some failed', queued: 'some need Playwright', error: 'some could not be saved' }[ status ];
+		const outcome = {
+			/* translators: %d: number of rehearsals. */
+			pass: _n( 'Run link: ran %d rehearsal, all passed.', 'Run link: ran %d rehearsals, all passed.', n, 'rehearsals' ),
+			/* translators: %d: number of rehearsals. */
+			fail: _n( 'Run link: ran %d rehearsal, some failed.', 'Run link: ran %d rehearsals, some failed.', n, 'rehearsals' ),
+			/* translators: %d: number of rehearsals. */
+			queued: _n( 'Run link: ran %d rehearsal, some need Playwright.', 'Run link: ran %d rehearsals, some need Playwright.', n, 'rehearsals' ),
+			/* translators: %d: number of rehearsals. */
+			error: _n( 'Run link: ran %d rehearsal, some could not be saved.', 'Run link: ran %d rehearsals, some could not be saved.', n, 'rehearsals' ),
+		}[ status ];
 		// Each run links to its result in Recent runs.
-		const saved = runIds.map( ( i ) => `<a href="#run-${ Number( i ) }">run #${ Number( i ) }</a>` ).join( ', ' ) || 'nothing';
-		report( status, `${ esc( `Run link: ran ${ count }, ${ outcome }.` ) } Saved as ${ saved }${ ref ? esc( `, ref ${ ref }` ) : '' }.`, runIds );
+		const saved =
+			runIds.map( ( i ) => `<a href="#run-${ Number( i ) }">${ /* translators: %d: run number. */ esc( sprintf( __( 'run #%d', 'rehearsals' ), Number( i ) ) ) }</a>` ).join( ', ' ) ||
+			esc( __( 'nothing', 'rehearsals' ) );
+		const savedAs = ref
+			? /* translators: 1: links to the saved runs, or "nothing", 2: the label the runs were saved with. */ sprintf( esc( __( 'Saved as %1$s, ref %2$s.', 'rehearsals' ) ), saved, esc( ref ) )
+			: /* translators: %s: links to the saved runs, or "nothing". */ sprintf( esc( __( 'Saved as %s.', 'rehearsals' ) ), saved );
+		report( status, `${ esc( sprintf( outcome, n ) ) } ${ savedAs }`, runIds );
 	}
 
 	showLinkedRun();

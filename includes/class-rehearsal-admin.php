@@ -29,7 +29,7 @@ final class Rehearsal_Admin {
 	 * Tools → Rehearsal.
 	 */
 	public static function menu() {
-		add_management_page( 'Rehearsal', 'Rehearsal', 'manage_options', Rehearsal::SLUG, array( __CLASS__, 'render' ) );
+		add_management_page( __( 'Rehearsal', 'rehearsals' ), __( 'Rehearsal', 'rehearsals' ), 'manage_options', Rehearsal::SLUG, array( __CLASS__, 'render' ) );
 	}
 
 	/**
@@ -43,7 +43,8 @@ final class Rehearsal_Admin {
 		}
 		$url = Rehearsal::url( 'assets/' );
 		wp_enqueue_style( 'rehearsal', $url . 'runner.css', array(), self::asset_version( 'runner.css' ) );
-		wp_enqueue_script( 'rehearsal', $url . 'runner.js', array( 'wp-api-fetch' ), self::asset_version( 'runner.js' ), true );
+		wp_enqueue_script( 'rehearsal', $url . 'runner.js', array( 'wp-api-fetch', 'wp-i18n' ), self::asset_version( 'runner.js' ), true );
+		wp_set_script_translations( 'rehearsal', 'rehearsals' );
 		wp_add_inline_script(
 			'rehearsal',
 			'window.rehearsalData = ' . wp_json_encode(
@@ -92,10 +93,10 @@ final class Rehearsal_Admin {
 		$ids = Rehearsal_Share::ids_from_run_token( sanitize_text_field( wp_unslash( $_GET['run'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$ref = isset( $_GET['ref'] ) ? sanitize_text_field( wp_unslash( $_GET['ref'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $ids ) {
-			return array( 'error' => 'This run link is not valid. Copy it again from wp rehearsal list or the rehearsal\'s dialog.' );
+			return array( 'error' => __( 'This run link is not valid. Copy it again from wp rehearsal list or the rehearsal\'s dialog.', 'rehearsals' ) );
 		}
 		if ( ! preg_match( '/' . Rehearsal_Runs::REF_PATTERN . '/', $ref ) ) {
-			return array( 'error' => 'The run link\'s ref can only have letters, numbers, ".", "_" and "-", up to 64 of them.' );
+			return array( 'error' => __( 'The run link\'s ref can only have letters, numbers, ".", "_" and "-", up to 64 of them.', 'rehearsals' ) );
 		}
 		return array(
 			'ids' => $ids,
@@ -130,20 +131,20 @@ final class Rehearsal_Admin {
 		);
 		?>
 		<div class="wrap rh">
-			<h1 class="wp-heading-inline">Rehearsal</h1>
+			<h1 class="wp-heading-inline"><?php esc_html_e( 'Rehearsal', 'rehearsals' ); ?></h1>
 			<hr class="wp-header-end">
-			<p class="rh-build">Build under test: <code><?php echo esc_html( self::build() ); ?></code></p>
+			<p class="rh-build"><?php esc_html_e( 'Build under test:', 'rehearsals' ); ?> <code><?php echo esc_html( self::build() ); ?></code></p>
 			<?php if ( ! $has_recipes ) : ?>
 				<div class="rh-empty">
-					<p>No rehearsals yet. A rehearsal is a list of steps (go to a page, wait for something, check it) that this page runs in your browser. Add the examples, install one from a colleague's link, or write your own.</p>
+					<p><?php esc_html_e( 'No rehearsals yet. A rehearsal is a list of steps (go to a page, wait for something, check it) that this page runs in your browser. Add the examples, install one from a colleague\'s link, or write your own.', 'rehearsals' ); ?></p>
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 						<input type="hidden" name="action" value="rehearsal_seed">
 						<?php wp_nonce_field( 'rehearsal_seed' ); ?>
-						<?php submit_button( 'Add example rehearsals', 'secondary', 'submit', false ); ?>
+						<?php submit_button( __( 'Add example rehearsals', 'rehearsals' ), 'secondary', 'submit', false ); ?>
 					</form>
 				</div>
 			<?php endif; ?>
-			<div id="rh-app"><p>Loading the runner…</p></div>
+			<div id="rh-app"><p><?php esc_html_e( 'Loading the runner…', 'rehearsals' ); ?></p></div>
 		</div>
 		<?php
 	}

@@ -7,6 +7,43 @@
 
 define( 'ABSPATH', __DIR__ . '/' );
 
+// Translation functions return the untranslated text, so assertions read the English messages.
+function __( $text, $domain = 'default' ) {
+	return $text;
+}
+
+function _x( $text, $context, $domain = 'default' ) {
+	return $text;
+}
+
+function _n( $single, $plural, $number, $domain = 'default' ) {
+	return 1 === (int) $number ? $single : $plural;
+}
+
+function esc_html( $text ) {
+	return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
+}
+
+function esc_attr( $text ) {
+	return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
+}
+
+function esc_html__( $text, $domain = 'default' ) {
+	return esc_html( $text );
+}
+
+function esc_attr__( $text, $domain = 'default' ) {
+	return esc_attr( $text );
+}
+
+function esc_html_e( $text, $domain = 'default' ) {
+	echo esc_html( $text );
+}
+
+function esc_attr_e( $text, $domain = 'default' ) {
+	echo esc_attr( $text );
+}
+
 function wp_json_encode( $value, $flags = 0 ) {
 	return json_encode( $value, $flags );
 }

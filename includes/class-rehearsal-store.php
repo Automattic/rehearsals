@@ -24,7 +24,7 @@ final class Rehearsal_Store {
 		register_post_type(
 			Rehearsal::RECIPE,
 			array(
-				'label'        => 'Rehearsals',
+				'label'        => __( 'Rehearsals', 'rehearsals' ),
 				'public'       => false,
 				'show_ui'      => false,
 				'map_meta_cap' => true,
@@ -35,7 +35,7 @@ final class Rehearsal_Store {
 		register_post_type(
 			Rehearsal::RUN,
 			array(
-				'label'        => 'Rehearsal runs',
+				'label'        => __( 'Rehearsal runs', 'rehearsals' ),
 				'public'       => false,
 				'show_ui'      => false,
 				'map_meta_cap' => true,

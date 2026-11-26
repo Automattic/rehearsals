@@ -35,44 +35,48 @@ final class Rehearsal_Schema {
 	 */
 	public static function validate( $recipe ) {
 		if ( ! is_array( $recipe ) || ! isset( $recipe['steps'] ) || ! self::is_list( $recipe['steps'] ) || ! $recipe['steps'] ) {
-			return 'The JSON must be an object with a non-empty "steps" array.';
+			return __( 'The JSON must be an object with a non-empty "steps" array.', 'rehearsals' );
 		}
 		// Free-form labels a CI job matches against what changed: project names, paths or tags.
 		if ( array_key_exists( 'covers', $recipe ) && ! self::is_list_of( $recipe['covers'], '#^[A-Za-z0-9._/*@-]{1,100}$#' ) ) {
-			return '"covers" must be a list of short labels without spaces, such as ["packages/forms"] or ["src/checkout/*"].';
+			return __( '"covers" must be a list of short labels without spaces, such as ["packages/forms"] or ["src/checkout/*"].', 'rehearsals' );
 		}
 		if ( array_key_exists( 'requires', $recipe ) && ! self::is_list_of( $recipe['requires'], self::REQUIRES_PATTERN ) ) {
-			return '"requires" must be a list of plugin slugs (their folder names), such as ["jetpack"], or ["jetpack or jetpack-premium-analytics"] when any one will do.';
+			return __( '"requires" must be a list of plugin slugs (their folder names), such as ["jetpack"], or ["jetpack or jetpack-premium-analytics"] when any one will do.', 'rehearsals' );
 		}
 		if ( array_key_exists( 'role', $recipe ) && ( ! is_string( $recipe['role'] ) || ! preg_match( '/^[a-z0-9_-]{1,60}$/', $recipe['role'] ) ) ) {
-			return '"role" must be a role slug, such as "editor".';
+			return __( '"role" must be a role slug, such as "editor".', 'rehearsals' );
 		}
 		if ( array_key_exists( 'theme', $recipe ) && ! self::is_list_of( is_string( $recipe['theme'] ) ? array( $recipe['theme'] ) : $recipe['theme'], '/^[a-z0-9._-]{1,100}$/' ) ) {
-			return '"theme" must be a theme slug (its folder name), such as "twentytwentyfour", or a list of them.';
+			return __( '"theme" must be a theme slug (its folder name), such as "twentytwentyfour", or a list of them.', 'rehearsals' );
 		}
 		if ( array_key_exists( 'budgets', $recipe ) ) {
 			foreach ( is_array( $recipe['budgets'] ) && $recipe['budgets'] ? $recipe['budgets'] : array( 'x' => null ) as $key => $limit ) {
 				if ( ! in_array( $key, self::BUDGET_KEYS, true ) || ! is_numeric( $limit ) || $limit <= 0 ) {
-					return sprintf( '"budgets" takes positive numbers for: %s.', implode( ', ', self::BUDGET_KEYS ) );
+					return sprintf(
+						/* translators: %s: comma-separated list of budget keys, such as ttfb, lcp, cls. */
+						__( '"budgets" takes positive numbers for: %s.', 'rehearsals' ),
+						implode( ', ', self::BUDGET_KEYS )
+					);
 				}
 			}
 		}
 		if ( array_key_exists( 'format', $recipe ) && ( ! is_int( $recipe['format'] ) || $recipe['format'] < 1 ) ) {
-			return '"format" must be a whole number from 1 up.';
+			return __( '"format" must be a whole number from 1 up.', 'rehearsals' );
 		}
 		if ( array_key_exists( 'viewport', $recipe ) && ! in_array( $recipe['viewport'], self::VIEWPORTS, true ) ) {
-			return '"viewport" must be "desktop" or "mobile".';
+			return __( '"viewport" must be "desktop" or "mobile".', 'rehearsals' );
 		}
 		if ( array_key_exists( 'needs', $recipe ) && 'playwright' !== $recipe['needs'] ) {
-			return '"needs" can only be "playwright".';
+			return __( '"needs" can only be "playwright".', 'rehearsals' );
 		}
 		if ( array_key_exists( 'timeout', $recipe ) && ! self::is_timeout( $recipe['timeout'] ) ) {
-			return '"timeout" must be a whole number of milliseconds, such as 10000.';
+			return __( '"timeout" must be a whole number of milliseconds, such as 10000.', 'rehearsals' );
 		}
 		foreach ( $recipe['steps'] as $i => $step ) {
-			$error = self::step_error( $step );
+			$error = self::step_error( $step, $i + 1 );
 			if ( $error ) {
-				return sprintf( 'Step %d%s', $i + 1, $error );
+				return $error;
 			}
 		}
 		return '';
@@ -82,63 +86,86 @@ final class Rehearsal_Schema {
 	 * What is wrong with one step.
 	 *
 	 * @param mixed $step Step.
-	 * @return string Error, starting with ":" or " must", or '' when valid.
+	 * @param int   $n    The step's number, from 1.
+	 * @return string Error, naming the step, or '' when valid.
 	 */
-	private static function step_error( $step ) {
+	private static function step_error( $step, $n ) {
 		$actions = is_array( $step ) && ! self::is_list( $step ) ? array_intersect( array_keys( $step ), self::STEPS ) : array();
 		if ( 1 !== count( $actions ) ) {
-			return ' must have exactly one of: ' . implode( ', ', self::STEPS ) . '.';
+			return sprintf(
+				/* translators: 1: step number, 2: comma-separated list of step names, such as goto, waitFor, click. */
+				__( 'Step %1$d must have exactly one of: %2$s.', 'rehearsals' ),
+				$n,
+				implode( ', ', self::STEPS )
+			);
 		}
 		if ( array_key_exists( 'goto', $step ) ) {
 			// No backslash or control character: browsers read "/\x" and "/<tab>/x" as "//x", another site.
 			if ( ! is_string( $step['goto'] ) || ! preg_match( '#^/(?!/)[^\\\\\x00-\x1f]*$#', $step['goto'] ) ) {
-				return ': "goto" must be a path on this site, starting with a single "/".';
+				/* translators: %d: step number. */
+				return sprintf( __( 'Step %d: "goto" must be a path on this site, starting with a single "/".', 'rehearsals' ), $n );
 			}
 		}
 		foreach ( self::SELECTOR_KEYS as $key ) {
 			if ( array_key_exists( $key, $step ) && ( ! is_string( $step[ $key ] ) || '' === trim( $step[ $key ] ) ) ) {
-				return sprintf( ': "%s" must be a selector, such as "#submit" or "text=Save".', $key );
+				/* translators: 1: step number, 2: step key that takes a selector, such as click. */
+				return sprintf( __( 'Step %1$d: "%2$s" must be a selector, such as "#submit" or "text=Save".', 'rehearsals' ), $n, $key );
 			}
 		}
 		if ( array_key_exists( 'expectText', $step ) && ( ! is_string( $step['expectText'] ) || '' === $step['expectText'] ) ) {
-			return ': "expectText" must be the text to find.';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "expectText" must be the text to find.', 'rehearsals' ), $n );
 		}
 		if ( array_key_exists( 'screenshot', $step ) && ( ! is_string( $step['screenshot'] ) || ! preg_match( '/^[A-Za-z0-9._-]{1,100}$/', $step['screenshot'] ) || '.' === $step['screenshot'][0] ) ) {
-			return ': "screenshot" must be a file name without a folder, such as "checkout".';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "screenshot" must be a file name without a folder, such as "checkout".', 'rehearsals' ), $n );
 		}
 		if ( array_key_exists( 'dialog', $step ) && ! in_array( $step['dialog'], self::DIALOG_ACTIONS, true ) ) {
-			return ': "dialog" must be "accept" or "dismiss".';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "dialog" must be "accept" or "dismiss".', 'rehearsals' ), $n );
 		}
 		if ( array_key_exists( 'press', $step ) && ( ! is_string( $step['press'] ) || '' === $step['press'] ) ) {
-			return ': "press" needs a key, such as "Enter" or "Control+A".';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "press" needs a key, such as "Enter" or "Control+A".', 'rehearsals' ), $n );
 		}
 		if ( isset( $step['selectOption'] ) && ! isset( $step['value'] ) ) {
-			return ': "selectOption" needs a "value" (the option\'s value or its label).';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "selectOption" needs a "value" (the option\'s value or its label).', 'rehearsals' ), $n );
 		}
 		if ( array_key_exists( 'value', $step ) && ! is_string( $step['value'] ) && ! is_int( $step['value'] ) && ! is_float( $step['value'] ) ) {
-			return ': "value" must be text or a number.';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "value" must be text or a number.', 'rehearsals' ), $n );
 		}
 		if ( array_key_exists( 'timeout', $step ) && ! self::is_timeout( $step['timeout'] ) ) {
-			return ': "timeout" must be a whole number of milliseconds, such as 5000.';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "timeout" must be a whole number of milliseconds, such as 5000.', 'rehearsals' ), $n );
 		}
 		if ( array_key_exists( 'min', $step ) && ( ! is_int( $step['min'] ) || $step['min'] < 0 ) ) {
-			return ': "min" must be a whole number from 0 up.';
+			/* translators: %d: step number. */
+			return sprintf( __( 'Step %d: "min" must be a whole number from 0 up.', 'rehearsals' ), $n );
 		}
 		foreach ( array( 'optional', 'not' ) as $key ) {
 			if ( array_key_exists( $key, $step ) && ! is_bool( $step[ $key ] ) ) {
-				return sprintf( ': "%s" must be true or false.', $key );
+				/* translators: 1: step number, 2: step setting, such as optional. */
+				return sprintf( __( 'Step %1$d: "%2$s" must be true or false.', 'rehearsals' ), $n, $key );
 			}
 		}
 		if ( array_key_exists( 'expectNoConsoleErrors', $step ) ) {
 			$check = $step['expectNoConsoleErrors'];
 			if ( true !== $check && ( ! is_array( $check ) || self::is_list( $check ) || ( array_key_exists( 'ignore', $check ) && ! self::is_list_of( $check['ignore'] ) ) ) ) {
-				return ': "expectNoConsoleErrors" must be true, or { "ignore": [ patterns ] }.';
+				/* translators: %d: step number. */
+				return sprintf( __( 'Step %d: "expectNoConsoleErrors" must be true, or { "ignore": [ patterns ] }.', 'rehearsals' ), $n );
 			}
 		}
 		if ( isset( $step['expect'] ) ) {
 			$matchers = array_values( array_intersect( array_keys( $step ), self::MATCHERS ) );
 			if ( 1 !== count( $matchers ) ) {
-				return ': "expect" needs exactly one of: ' . implode( ', ', self::MATCHERS ) . '.';
+				return sprintf(
+					/* translators: 1: step number, 2: comma-separated list of matcher names, such as toBeVisible, toHaveText. */
+					__( 'Step %1$d: "expect" needs exactly one of: %2$s.', 'rehearsals' ),
+					$n,
+					implode( ', ', self::MATCHERS )
+				);
 			}
 			$want = $step[ $matchers[0] ];
 			switch ( $matchers[0] ) {
@@ -155,12 +182,14 @@ final class Rehearsal_Schema {
 				default:
 					// false used to pass as true; "not" is the one way to invert a matcher.
 					if ( false === $want ) {
-						return sprintf( ': "%1$s" must be true. To check the opposite, write "%1$s": true, "not": true.', $matchers[0] );
+						/* translators: 1: step number, 2: matcher name, such as toBeVisible. */
+						return sprintf( __( 'Step %1$d: "%2$s" must be true. To check the opposite, write "%2$s": true, "not": true.', 'rehearsals' ), $n, $matchers[0] );
 					}
 					$ok = true === $want;
 			}
 			if ( ! $ok ) {
-				return sprintf( ': "%s" has the wrong kind of value.', $matchers[0] );
+				/* translators: 1: step number, 2: matcher name, such as toHaveCount. */
+				return sprintf( __( 'Step %1$d: "%2$s" has the wrong kind of value.', 'rehearsals' ), $n, $matchers[0] );
 			}
 		}
 		return '';
@@ -313,12 +342,14 @@ final class Rehearsal_Schema {
 	public static function install_error( array $recipe, $error ) {
 		if ( self::is_newer( $recipe ) ) {
 			return sprintf(
-				'This rehearsal was made with a newer version of Rehearsal (format %d; this site understands format %d) and uses something this version does not know: %s Update the Rehearsal plugin on this site to run it.',
+				/* translators: 1: the rehearsal's format number, 2: the newest format this site understands, 3: the validation error, a full sentence. */
+				__( 'This rehearsal was made with a newer version of Rehearsal (format %1$d; this site understands format %2$d) and uses something this version does not know: %3$s Update the Rehearsal plugin on this site to run it.', 'rehearsals' ),
 				self::format_of( $recipe ),
 				Rehearsal::FORMAT,
 				$error
 			);
 		}
-		return 'The shared rehearsal is not valid here: ' . $error;
+		/* translators: %s: the validation error, a full sentence. */
+		return sprintf( __( 'The shared rehearsal is not valid here: %s', 'rehearsals' ), $error );
 	}
 }

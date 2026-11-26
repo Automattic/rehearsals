@@ -87,7 +87,8 @@ final class Rehearsal_Roles {
 	public static function rest_role_user( $request ) {
 		$role = sanitize_key( $request['role'] );
 		if ( ! get_role( $role ) ) {
-			return new WP_Error( 'rehearsal_no_role', "There is no \"$role\" role on this site.", array( 'status' => 400 ) );
+			/* translators: %s: role slug, such as editor. */
+			return new WP_Error( 'rehearsal_no_role', sprintf( __( 'There is no "%s" role on this site.', 'rehearsals' ), $role ), array( 'status' => 400 ) );
 		}
 		$login = 'rehearsal-' . $role;
 		$user  = get_user_by( 'login', $login );
@@ -97,7 +98,8 @@ final class Rehearsal_Roles {
 					'user_login'   => $login,
 					'user_pass'    => wp_generate_password( 32, true, true ),
 					'user_email'   => $login . '@example.invalid',
-					'display_name' => "Rehearsal ($role)",
+					/* translators: %s: role slug, such as editor. */
+					'display_name' => sprintf( __( 'Rehearsal (%s)', 'rehearsals' ), $role ),
 					'role'         => $role,
 				)
 			);
@@ -107,7 +109,16 @@ final class Rehearsal_Roles {
 			update_user_meta( $id, self::MARK, 1 );
 			$user = get_user_by( 'id', $id );
 		} elseif ( ! get_user_meta( $user->ID, self::MARK, true ) ) {
-			return new WP_Error( 'rehearsal_user_taken', "There is already a user called \"$login\" that Rehearsal did not create, so it will not run as that account. Rename or delete it to run rehearsals as $role.", array( 'status' => 409 ) );
+			return new WP_Error(
+				'rehearsal_user_taken',
+				sprintf(
+					/* translators: 1: user login, such as rehearsal-editor, 2: role slug, such as editor. */
+					__( 'There is already a user called "%1$s" that Rehearsal did not create, so it will not run as that account. Rename or delete it to run rehearsals as %2$s.', 'rehearsals' ),
+					$login,
+					$role
+				),
+				array( 'status' => 409 )
+			);
 		} elseif ( ! in_array( $role, (array) $user->roles, true ) ) {
 			$user->set_role( $role );
 		}

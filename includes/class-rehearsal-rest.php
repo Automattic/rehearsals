@@ -206,13 +206,13 @@ final class Rehearsal_Rest {
 	public static function rest_save_recipe( $request ) {
 		$id = (int) $request['id'];
 		if ( $id && Rehearsal::RECIPE !== get_post_type( $id ) ) {
-			return new WP_Error( 'rehearsal_no_recipe', 'That rehearsal does not exist.', array( 'status' => 404 ) );
+			return new WP_Error( 'rehearsal_no_recipe', __( 'That rehearsal does not exist.', 'rehearsals' ), array( 'status' => 404 ) );
 		}
 		$recipe = $request['recipe'];
 		$error  = Rehearsal_Schema::validate( $recipe );
 		$title  = trim( sanitize_text_field( $request['title'] ) );
 		if ( $error || '' === $title ) {
-			return new WP_Error( 'rehearsal_invalid', $error ? $error : 'Give the rehearsal a title.', array( 'status' => 400 ) );
+			return new WP_Error( 'rehearsal_invalid', $error ? $error : __( 'Give the rehearsal a title.', 'rehearsals' ), array( 'status' => 400 ) );
 		}
 		// Posting the same rehearsal again, as a retrying agent does, returns the one already saved.
 		$same = $id ? 0 : Rehearsal_Store::find_same( $title, $recipe );
@@ -232,7 +232,7 @@ final class Rehearsal_Rest {
 	public static function rest_delete_recipe( $request ) {
 		$id = (int) $request['id'];
 		if ( Rehearsal::RECIPE !== get_post_type( $id ) ) {
-			return new WP_Error( 'rehearsal_no_recipe', 'That rehearsal does not exist.', array( 'status' => 404 ) );
+			return new WP_Error( 'rehearsal_no_recipe', __( 'That rehearsal does not exist.', 'rehearsals' ), array( 'status' => 404 ) );
 		}
 		wp_trash_post( $id );
 		return rest_ensure_response( array( 'deleted' => $id ) );
@@ -261,7 +261,7 @@ final class Rehearsal_Rest {
 	public static function install( $url, $dry_run, $expect ) {
 		$source = remove_query_arg( 'format', esc_url_raw( $url ) );
 		if ( ! wp_http_validate_url( $source ) || 'https' !== wp_parse_url( $source, PHP_URL_SCHEME ) || false === strpos( $source, 'rehearsal=' ) ) {
-			return new WP_Error( 'rehearsal_bad_link', 'That is not a rehearsal link. It should look like https://some-site.jurassic.ninja/?rehearsal=…', array( 'status' => 400 ) );
+			return new WP_Error( 'rehearsal_bad_link', __( 'That is not a rehearsal link. It should look like https://some-site.jurassic.ninja/?rehearsal=…', 'rehearsals' ), array( 'status' => 400 ) );
 		}
 		$response = wp_safe_remote_get(
 			add_query_arg( 'format', 'json', $source ),
@@ -271,11 +271,16 @@ final class Rehearsal_Rest {
 			)
 		);
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'rehearsal_fetch_failed', 'Could not reach the site that shared this rehearsal: ' . $response->get_error_message(), array( 'status' => 502 ) );
+			return new WP_Error(
+				'rehearsal_fetch_failed',
+				/* translators: %s: the HTTP error message. */
+				sprintf( __( 'Could not reach the site that shared this rehearsal: %s', 'rehearsals' ), $response->get_error_message() ),
+				array( 'status' => 502 )
+			);
 		}
 		$payload = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) || ! is_array( $payload ) || 'rehearsal' !== ( $payload['format'] ?? '' ) ) {
-			return new WP_Error( 'rehearsal_not_recipe', 'The link did not return a rehearsal. It may have been deleted, or the site may have expired.', array( 'status' => 502 ) );
+			return new WP_Error( 'rehearsal_not_recipe', __( 'The link did not return a rehearsal. It may have been deleted, or the site may have expired.', 'rehearsals' ), array( 'status' => 502 ) );
 		}
 		$recipe = $payload['definition'] ?? null;
 		$error  = Rehearsal_Schema::validate( $recipe );
@@ -284,7 +289,7 @@ final class Rehearsal_Rest {
 		}
 		$text     = static fn( $key ) => isset( $payload[ $key ] ) && is_string( $payload[ $key ] ) ? $payload[ $key ] : '';
 		$title    = trim( sanitize_text_field( $text( 'title' ) ) );
-		$title    = '' === $title ? 'Shared rehearsal' : $title;
+		$title    = '' === $title ? __( 'Shared rehearsal', 'rehearsals' ) : $title;
 		$existing = get_posts(
 			array(
 				'post_type'      => Rehearsal::RECIPE,
@@ -311,7 +316,7 @@ final class Rehearsal_Rest {
 			return $preview;
 		}
 		if ( ! $expect || ! hash_equals( $preview['id'], $expect ) ) {
-			return new WP_Error( 'rehearsal_changed', 'The shared rehearsal changed since you previewed it. Preview it again before installing.', array( 'status' => 409 ) );
+			return new WP_Error( 'rehearsal_changed', __( 'The shared rehearsal changed since you previewed it. Preview it again before installing.', 'rehearsals' ), array( 'status' => 409 ) );
 		}
 		$id = Rehearsal_Store::save_recipe( $existing ? (int) $existing[0] : 0, $title, $recipe, $source );
 		return is_wp_error( $id ) ? $id : Rehearsal_Store::recipe_for_js( get_post( $id ) ) + array( 'updated' => (bool) $existing );
