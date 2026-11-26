@@ -31,6 +31,29 @@ If the site doesn't have the plugin yet, or you have no way to log a browser in,
 `playwright` package is installed: it looks for Playwright in the current folder. When WP-CLI can't see
 your files (`--ssh=…`, Docker), pipe the JSON in: `wp rehearsal save - --title=… < check.json`.
 
+## Over MCP
+
+On WordPress 7.1 and later, Rehearsals registers abilities. With the
+[MCP Adapter](https://wordpress.org/plugins/mcp-adapter/) plugin active, an MCP client connected as an
+administrator finds them through the adapter's `discover-abilities` tool and calls them with
+`execute-ability` (`{ "ability_name": "rehearsals/…", "parameters": { … } }`). Results come back as
+`{ "success": true, "data": … }`.
+
+| Ability | Same as |
+| --- | --- |
+| `rehearsals/list-rehearsals` | `wp rehearsal list` |
+| `rehearsals/get-rehearsal` `{ id }` | one rehearsal with its steps |
+| `rehearsals/save-rehearsal` `{ title, rehearsal: { steps }, id? }` | `wp rehearsal save` |
+| `rehearsals/install-rehearsal` `{ url }` | `wp rehearsal install --yes` |
+| `rehearsals/get-run-link` `{ ids, ref? }` | a run link for one or more rehearsals |
+| `rehearsals/find-runs` `{ rehearsal?, ref?, status?, page? }` | `wp rehearsal runs` |
+| `rehearsals/get-report` `{ id }` | `wp rehearsal block` |
+
+Abilities can't run a rehearsal: that needs a logged-in browser. Get a run link with
+`rehearsals/get-run-link`, open it with `scripts/run-link.cjs`, then read the result with
+`rehearsals/find-runs` and the same `ref`. The steps below work the same way with abilities in place of
+WP-CLI.
+
 ## Verifying a change
 
 1. **Write the steps** to `check.json`. End with an `expect` that only holds when the change works,

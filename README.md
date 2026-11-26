@@ -253,6 +253,13 @@ skill, putting the plugin on a site, a browser and a login. In Claude Code:
 /plugin install rehearsals --marketplace Automattic/rehearsals
 ```
 
+**Abilities and MCP.** On WordPress 7.1 and later, Rehearsal registers abilities in the `rehearsals`
+category: `list-rehearsals`, `get-rehearsal`, `save-rehearsal`, `install-rehearsal`, `get-run-link`,
+`find-runs` and `get-report`. They are administrator-only and public, so the
+[MCP Adapter](https://wordpress.org/plugins/mcp-adapter/) offers them to MCP clients, and
+`/wp-json/wp-abilities/v1/` lists them. They do what `wp rehearsal` does; running a rehearsal still
+takes a browser opening the run link that `get-run-link` returns.
+
 `wp rehearsal` does what the screen does, without a browser:
 
 ```bash
@@ -315,6 +322,7 @@ The screen says what ran, and links each saved run to its result:
 | `Rehearsal_Admin` | The screen, its assets, the in-frame recorder, the build line |
 | `Rehearsal_Examples` | The example rehearsals |
 | `Rehearsal_Command` | `wp rehearsal` |
+| `Rehearsal_Abilities` | The `rehearsals/…` abilities, for the Abilities API and MCP (WordPress 7.1 and later) |
 
 The decisions worth testing are pure functions that take what they need as arguments, such as
 `Schema::validate()`, `Requirements::find_missing()`, `Roles::is_from_frame()`,

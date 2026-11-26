@@ -23,7 +23,7 @@ A rehearsal is a short list of steps written as JSON: go to a page, click, fill 
 * **Run as a role.** A rehearsal can run as an editor, author, or any other role, using a test user that Rehearsal creates for it.
 * **Requirements.** A rehearsal can say which plugins, theme or role it needs, and warns before running on a site without them.
 * **Playwright export.** Turn selected rehearsals into a standalone Playwright test for CI. The test saves its results back to the site.
-* **WP-CLI and REST.** `wp rehearsal` and the `rehearsal/v1` REST routes save, list, install and report on rehearsals without a browser.
+* **WP-CLI, REST and abilities.** `wp rehearsal`, the `rehearsal/v1` REST routes and, on WordPress 7.1 and later, abilities for the Abilities API and MCP save, list, install and report on rehearsals without a browser.
 * **Made for AI agents too.** A ready-made agent skill teaches coding agents to write a rehearsal for a change, run it headless and put the result in a pull request.
 
 Only administrators can see, edit or run rehearsals.
@@ -70,6 +70,10 @@ It cannot open other sites, take screenshots, open menus that only appear on CSS
 = Can AI agents use it? =
 
 Yes. The GitHub repository has an agent skill (`skills/rehearsals`) and a setup guide (`docs/agent-setup.md`). With them, an agent such as Claude Code or Codex can save a rehearsal with WP-CLI, run it in a headless browser through a run link, and read the saved result. In Claude Code, install the skill with `/plugin install rehearsals --marketplace Automattic/rehearsals`.
+
+= Does it work over MCP? =
+
+On WordPress 7.1 and later, yes. Rehearsals registers abilities for listing, saving and installing rehearsals, making run links, reading runs and writing a pull request report. With the MCP Adapter plugin active, an AI agent connected to your site as an administrator can use them. Running a rehearsal still happens in a browser, through the run link.
 
 = Can I try it without installing it? =
 

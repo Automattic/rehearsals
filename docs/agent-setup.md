@@ -65,6 +65,17 @@ The agent needs WP-CLI on the site: locally, through `wp --ssh=user@host/path`, 
 host's own shell. Without WP-CLI, the REST routes under `/wp-json/rehearsal/v1/` and the screen at
 Tools → Rehearsal do the same things.
 
+**Over MCP instead of WP-CLI.** On WordPress 7.1 and later, install and activate the
+[MCP Adapter](https://wordpress.org/plugins/mcp-adapter/) plugin, then connect your agent's MCP client
+to the site as an administrator. Over stdio, from wherever WP-CLI reaches the site:
+
+```json
+{ "mcpServers": { "wordpress": { "command": "wp", "args": [ "mcp-adapter", "serve", "--server=mcp-adapter-default-server", "--user=admin" ] } } }
+```
+
+The adapter's `discover-abilities` tool lists the `rehearsals/…` abilities. They save, list and install
+rehearsals and read runs; running one still takes the browser below.
+
 ## 3. Install a browser
 
 The run script uses Playwright's Chromium. Install it once, in the folder you'll run the script from:

@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-foreach ( array( 'schema', 'store', 'runs', 'requirements', 'roles', 'share', 'playwright', 'rest', 'admin', 'examples' ) as $rehearsal_part ) {
+foreach ( array( 'schema', 'store', 'runs', 'requirements', 'roles', 'share', 'playwright', 'rest', 'admin', 'examples', 'abilities' ) as $rehearsal_part ) {
 	require_once __DIR__ . "/includes/class-rehearsal-$rehearsal_part.php";
 }
 unset( $rehearsal_part );
@@ -61,6 +61,8 @@ final class Rehearsal {
 		add_action( 'admin_post_rehearsal_seed', array( Rehearsal_Examples::class, 'seed' ) );
 		add_filter( 'wp_client_side_media_processing_enabled', array( Rehearsal_Admin::class, 'no_isolation_in_frame' ), 100 );
 		add_filter( 'determine_current_user', array( Rehearsal_Roles::class, 'act_as_role' ), 100 );
+		// Abilities, for agents using the Abilities API or MCP. WordPress 7.1 and later only.
+		Rehearsal_Abilities::init();
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			require_once __DIR__ . '/includes/class-rehearsal-command.php';
 			WP_CLI::add_command( 'rehearsal', Rehearsal_Command::class );

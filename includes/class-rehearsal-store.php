@@ -115,6 +115,33 @@ final class Rehearsal_Store {
 	}
 
 	/**
+	 * Validate and save a rehearsal, as REST and the abilities do. Saving the same title and steps again,
+	 * as a retrying agent does, returns the rehearsal already saved instead of a copy.
+	 *
+	 * @param int    $id     Rehearsal to update, or 0 to add one.
+	 * @param string $title  Title.
+	 * @param mixed  $recipe Rehearsal definition ({ "steps": [ … ] }), not yet validated.
+	 * @return array|WP_Error The saved rehearsal as recipe_for_js() shapes it, plus "existing".
+	 */
+	public static function save( $id, $title, $recipe ) {
+		$id = (int) $id;
+		if ( $id && Rehearsal::RECIPE !== get_post_type( $id ) ) {
+			return new WP_Error( 'rehearsal_no_recipe', __( 'That rehearsal does not exist.', 'rehearsals' ), array( 'status' => 404 ) );
+		}
+		$error = Rehearsal_Schema::validate( $recipe );
+		$title = trim( sanitize_text_field( (string) $title ) );
+		if ( $error || '' === $title ) {
+			return new WP_Error( 'rehearsal_invalid', $error ? $error : __( 'Give the rehearsal a title.', 'rehearsals' ), array( 'status' => 400 ) );
+		}
+		$same = $id ? 0 : self::find_same( $title, $recipe );
+		if ( $same ) {
+			return self::recipe_for_js( get_post( $same ) ) + array( 'existing' => true );
+		}
+		$id = self::save_recipe( $id, $title, $recipe );
+		return is_wp_error( $id ) ? $id : self::recipe_for_js( get_post( $id ) ) + array( 'existing' => false );
+	}
+
+	/**
 	 * Create or update a recipe. Content is written after insert so no content filter (kses) can alter it.
 	 *
 	 * @param int    $id     Recipe ID, or 0 to create.

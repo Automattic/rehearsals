@@ -204,23 +204,15 @@ final class Rehearsal_Rest {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function rest_save_recipe( $request ) {
-		$id = (int) $request['id'];
-		if ( $id && Rehearsal::RECIPE !== get_post_type( $id ) ) {
-			return new WP_Error( 'rehearsal_no_recipe', __( 'That rehearsal does not exist.', 'rehearsals' ), array( 'status' => 404 ) );
+		$saved = Rehearsal_Store::save( $request['id'], $request['title'], $request['recipe'] );
+		if ( is_wp_error( $saved ) ) {
+			return $saved;
 		}
-		$recipe = $request['recipe'];
-		$error  = Rehearsal_Schema::validate( $recipe );
-		$title  = trim( sanitize_text_field( $request['title'] ) );
-		if ( $error || '' === $title ) {
-			return new WP_Error( 'rehearsal_invalid', $error ? $error : __( 'Give the rehearsal a title.', 'rehearsals' ), array( 'status' => 400 ) );
+		// As before, "existing" is only there when the rehearsal was already saved.
+		if ( ! $saved['existing'] ) {
+			unset( $saved['existing'] );
 		}
-		// Posting the same rehearsal again, as a retrying agent does, returns the one already saved.
-		$same = $id ? 0 : Rehearsal_Store::find_same( $title, $recipe );
-		if ( $same ) {
-			return rest_ensure_response( Rehearsal_Store::recipe_for_js( get_post( $same ) ) + array( 'existing' => true ) );
-		}
-		$id = Rehearsal_Store::save_recipe( $id, $title, $recipe );
-		return is_wp_error( $id ) ? $id : rest_ensure_response( Rehearsal_Store::recipe_for_js( get_post( $id ) ) );
+		return rest_ensure_response( $saved );
 	}
 
 	/**
