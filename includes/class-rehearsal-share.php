@@ -91,14 +91,14 @@ final class Rehearsal_Share {
 		if ( 'github' === $format ) {
 			header( 'Access-Control-Allow-Origin: *' );
 			header( 'Content-Type: text/plain; charset=utf-8' );
-			echo self::to_github( $payload, Rehearsal_Runs::latest( $post->ID ) ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text Markdown.
+			echo self::to_github( $payload, Rehearsal_Runs::latest( $post->ID ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plain-text Markdown.
 			exit;
 		}
 		if ( 'playwright' === $format ) {
 			header( 'Access-Control-Allow-Origin: *' );
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			header( 'Content-Disposition: inline; filename="' . sanitize_title( $payload['title'] ) . '.spec.ts"' );
-			echo Rehearsal_Playwright::to_playwright( $payload ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text source code.
+			echo Rehearsal_Playwright::to_playwright( $payload ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plain-text source code.
 			exit;
 		}
 		self::render_share_page( $payload );
@@ -257,7 +257,7 @@ final class Rehearsal_Share {
 		header( 'Access-Control-Allow-Origin: *' );
 		header( 'Content-Type: text/plain; charset=utf-8' );
 		header( 'Content-Disposition: ' . ( empty( $_GET['download'] ) ? 'inline' : 'attachment' ) . '; filename="rehearsals.spec.ts"' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		echo Rehearsal_Playwright::to_playwright_bundle( $payloads, home_url( '/' ) ); // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped -- Plain-text source code.
+		echo Rehearsal_Playwright::to_playwright_bundle( $payloads, home_url( '/' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plain-text source code.
 		exit;
 	}
 

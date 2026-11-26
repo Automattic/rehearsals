@@ -4,9 +4,13 @@
  * Plugin URI: https://github.com/Automattic/rehearsals
  * Description: Repeatable, shareable step-by-step checks of your site, run in the browser from Tools → Rehearsal.
  * Version: 0.21.0
+ * Requires at least: 6.0
+ * Requires PHP: 7.4
  * Author: Automattic
+ * Author URI: https://automattic.com/
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: rehearsals
  *
  * @package rehearsals
  */

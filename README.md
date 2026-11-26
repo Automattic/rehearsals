@@ -296,3 +296,18 @@ The decisions worth testing are pure functions that take what they need as argum
 composer install
 composer test
 ```
+
+### Releasing to wordpress.org
+
+`bin/build.sh` builds the release into `build/rehearsals.zip`, leaving out what `.distignore` lists
+(tests, dev tooling, screenshots, this README). Check that copy with
+[Plugin Check](https://wordpress.org/plugins/plugin-check/) before uploading:
+
+```bash
+bin/build.sh
+wp plugin check /path/to/build/rehearsals
+```
+
+For a release, raise the version in `rehearsals.php`, `Rehearsal::VERSION` and the `Stable tag` in
+`readme.txt` together, and add a changelog entry to `readme.txt`. The directory's screenshots live in
+`.wordpress-org/` and go in the SVN `assets/` folder, not in the plugin.

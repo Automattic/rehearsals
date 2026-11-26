@@ -1,0 +1,16 @@
+/.git
+/.github
+/.wordpress-org
+/.distignore
+/.gitignore
+/.phpunit.result.cache
+/bin
+/build
+/node_modules
+/screenshots
+/tests
+/vendor
+/composer.json
+/composer.lock
+/phpunit.xml.dist
+/README.md
