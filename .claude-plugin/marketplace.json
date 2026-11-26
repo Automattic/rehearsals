@@ -1,6 +1,9 @@
 {
 	"name": "rehearsals",
-	"owner": { "name": "Automattic" },
+	"owner": {
+		"name": "Automattic"
+	},
+	"description": "Rehearsals for WordPress: an agent skill for verifying changes with repeatable, shareable browser checks.",
 	"plugins": [
 		{
 			"name": "rehearsals",
